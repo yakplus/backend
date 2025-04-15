@@ -17,5 +17,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+api:
+  host: apis.data.go.kr
+  serviceKey: ${API_SERVICE_KEY}
+  type: json
+  path:
+    detail: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnDtlInq05
+    img: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnInq06
 server:
   port: 8084
