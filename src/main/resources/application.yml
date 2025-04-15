@@ -1,8 +1,8 @@
 spring:
   application:
     name: yakplus
-  elasticsearch:
-    uris: ${ELS_URI}
+#  elasticsearch:
+#    uris: ${ELS_URI}
   datasource:
     url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}
