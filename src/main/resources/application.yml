@@ -19,3 +19,7 @@ spring:
         format_sql: true
 server:
   port: 8084
+
+drug:
+  api:
+    service-key: ${DRUG_API_SERVICE_KEY}
