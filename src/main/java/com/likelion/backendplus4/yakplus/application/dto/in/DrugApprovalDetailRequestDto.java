@@ -2,8 +2,10 @@ package com.likelion.backendplus4.yakplus.application.dto.in;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class DrugApprovalDetailRequestDto {
 	private Integer pageNo;
