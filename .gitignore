@@ -111,3 +111,5 @@ replay_pid*
 *~.nib
 *~
 ~$*
+
+.env.*
