@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelion.backendplus4.yakplus.application.dto.in.DrugApprovalDetailRequestDto;
+import com.likelion.backendplus4.yakplus.application.dto.out.external.DrugApprovalDetailResponseDto;
+import com.likelion.backendplus4.yakplus.domain.port.in.DrugApprovalDetailUseCase;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/drug-approval-detail")
 public class DrugApprovalDetailController {
+
+	private final DrugApprovalDetailUseCase drugApprovalDetailUseCase;
 	@PostMapping
 	public ResponseEntity<?> fetchDrugDetails(@RequestBody String json, ObjectMapper mapper) throws
 		JsonProcessingException {
@@ -27,9 +31,10 @@ public class DrugApprovalDetailController {
 		// 디버깅 용도: requestDto 값 출력
 		System.out.println("Requested numOfRows: " + requestDto.getNumOfRows());
 
-		// 추후 유스케이스 실행 예정
-		// useCase.fetchDetails(requestDto);
+		//
+		DrugApprovalDetailResponseDto response = drugApprovalDetailUseCase.fetchDetails(requestDto);
+		System.out.println("Request header check: " + response.getHeader());
 
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(response);
 	}
 }
