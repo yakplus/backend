@@ -19,3 +19,9 @@ spring:
         format_sql: true
 server:
   port: 8084
+
+api:
+  drug:
+    product:
+      baseUrl: https://apis.data.go.kr/1471000/DrugPrdtPrmsnInfoService06
+      apiKey: ${API_KEY}
