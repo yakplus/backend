@@ -1,7 +1,7 @@
-package com.likelion.backendplus4.yakplus.exception;
+package com.likelion.backendplus4.yakplus.common.exception;
 
 
-import com.likelion.backendplus4.yakplus.exception.error.ErrorCode;
+import com.likelion.backendplus4.yakplus.common.exception.error.ErrorCode;
 
 /**
  * 사용자 정의 예외의 추상 클래스 애플리케이션 전역에서 사용하는 공통 예외 상위 타입이다.

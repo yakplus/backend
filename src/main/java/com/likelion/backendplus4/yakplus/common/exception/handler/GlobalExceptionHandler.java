@@ -1,5 +1,7 @@
-package com.likelion.backendplus4.yakplus.exception.handler;
+package com.likelion.backendplus4.yakplus.common.exception.handler;
 
+import com.likelion.backendplus4.yakplus.common.exception.CustomException;
+import com.likelion.backendplus4.yakplus.common.exception.error.ErrorCode;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,14 +28,14 @@ public class GlobalExceptionHandler {
      * @author 정안식
      * @since 2025-02-18
      */
-//    @ExceptionHandler(CustomException.class)
-//    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException ex) {
-//        log.error("CustomException occurred: {}", ex.getMessage(), ex);
-//
-//        ErrorCode errorCode = ex.getErrorCode();
-//
-//        return ApiResponse.error(errorCode.httpStatus(), String.valueOf(errorCode.codeNumber()), errorCode.message());
-//    }
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException ex) {
+        log.error("CustomException occurred: {}", ex.getMessage(), ex);
+
+        ErrorCode errorCode = ex.getErrorCode();
+
+        return ApiResponse.error(errorCode.httpStatus(), String.valueOf(errorCode.codeNumber()), errorCode.message());
+    }
 
     /**
      * IllegalArgumentException 처리 잘못된 파라미터에 대한 예외 응답 처리
