@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.scraper;
+package com.likelion.backendplus4.yakplus.scraper.drug.detail;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,6 +15,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Entity
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiDataDrugDetail {

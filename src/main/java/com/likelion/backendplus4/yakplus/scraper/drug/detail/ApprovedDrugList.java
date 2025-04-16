@@ -1,10 +1,12 @@
-package com.likelion.backendplus4.yakplus.scraper;
+package com.likelion.backendplus4.yakplus.scraper.drug.detail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.likelion.backendplus4.yakplus.scraper.drug.ApiResponseMapper;
+import com.likelion.backendplus4.yakplus.scraper.drug.ApiUriCompBuilder;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class ApprovedDrugList {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
     private final ApiUriCompBuilder apiUriCompBuilder;
-    private final ApiDataDrungRepo  repository;
+    private final ApiDataDrugRepo repository;
 
     @Transactional
     public void getAPIData(){
@@ -32,7 +34,7 @@ public class ApprovedDrugList {
         String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(), String.class);
         log.debug("API Response: {}", response);
 
-        JsonNode items = getItemsFromResponse(response);
+        JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
         List<ApiDataDrugDetail> drugs = toListFromJson(items);
         repository.saveAllAndFlush(drugs);
 
@@ -96,8 +98,6 @@ public class ApprovedDrugList {
             .replace("&#x301c; ", "~");
     }
     private List<String> getValueFromArrayNode(JsonNode jsonNode, String key) {
-        System.out.println("jsonNode = " + jsonNode);
-        System.out.println("key = " + key);
         List<String> result = new ArrayList<>();
         if(!jsonNode.isNull()){
             if(jsonNode.isArray()){
@@ -124,16 +124,5 @@ public class ApprovedDrugList {
         return jsonNode;
     }
 
-    private JsonNode getItemsFromResponse(String response) {
-        log.info("응답에서 items 값 추출");
-        try {
-            return objectMapper.readTree(response)
-                    .path("body")
-                    .path("items");
-        } catch (JsonProcessingException e) {
-            log.error("items 추출 실패");
-            //TODO: CustomException 만들고, ControllerAdvice로 예외처리 필요
-            throw new RuntimeException(e);
-        }
-    }
+
 }

@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.scraper;
+package com.likelion.backendplus4.yakplus.scraper.drug.detail;
 
 import lombok.RequiredArgsConstructor;
 

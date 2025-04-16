@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.scraper;
+package com.likelion.backendplus4.yakplus.scraper.drug;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,7 @@ public class ApiUriCompBuilder {
      * @since 2025-04-15
      * @author 함예정
      */
-    public URI getUri(String path) {
+    private URI getUri(String path) {
         return UriComponentsBuilder.newInstance()
             .scheme("https")
             .host(HOST)
@@ -77,6 +77,23 @@ public class ApiUriCompBuilder {
      */
     public URI getUriForImgApi() {
         return getUri(API_IMG_PATH);
+    }
+
+    // TODO 추후 삭제
+    public URI getUriForImgApiBySeq(String seq) {
+        // 임시 URI
+        return UriComponentsBuilder.newInstance()
+            .scheme("https")
+            .host(HOST)
+            .port(443)
+            .path(API_IMG_PATH)
+            .queryParam("serviceKey", SERVICE_KEY)
+            .queryParam("type", RESPONSE_TYPE)
+            .queryParam("numOfRows", 1)
+            .queryParam("prdlst_Stdr_code", seq)
+            .build(true)
+            .toUri();
+
     }
 
 }
