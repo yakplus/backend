@@ -36,7 +36,7 @@ public class MedicineDetailEntityMapper {
 			.makeMaterialFlag(dto.getMakeMaterialFlag())
 			.cancelName(dto.getCancelName())
 			.totalContent(dto.getTotalContent())
-			.efficacy(extractEeDoc(dto.getEeDocData()))
+			.efficacy(extractXmlText(dto.getEeDocData()))
 			.medicationUsage(extractXmlText(dto.getUdDocData()))
 			.precautionGeneral(extractXmlText(dto.getNbDocData()))
 			.precautionSpecial(extractXmlText(dto.getPnDocData()))
@@ -87,18 +87,6 @@ public class MedicineDetailEntityMapper {
 			return "[]";
 		}
 
-		// try {
-		// 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		// 	Document doc = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-		// 	NodeList nodes = doc.getElementsByTagName("PARAGRAPH");
-		//
-		// 	List<String> contents = new ArrayList<>();
-		// 	for (int i = 0; i < nodes.getLength(); i++) {
-		// 		String text = nodes.item(i).getTextContent().trim();
-		// 		if (!text.isBlank()) {
-		// 			contents.add(text);
-		// 		}
-		// 	}
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			Document doc = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
@@ -108,58 +96,18 @@ public class MedicineDetailEntityMapper {
 
 			for (int i = 0; i < articleNodes.getLength(); i++) {
 				Element article = (Element) articleNodes.item(i);
-				NodeList paragraphNodes = article.getElementsByTagName("PARAGRAPH");
-
-				if (paragraphNodes.getLength() > 0) {
-					// 1. PARAGRAPH가 있으면 그것만 추출
-					for (int j = 0; j < paragraphNodes.getLength(); j++) {
-						String text = paragraphNodes.item(j).getTextContent().trim();
-						if (!text.isBlank()) {
-							contents.add(text);
-						}
-					}
-				} else {
-					// 2. PARAGRAPH 없고 title만 있을 때
-					String title = article.getAttribute("title").trim();
-					if (!title.isBlank()) {
-						contents.add(title);
-					}
+				// title 추출
+				String title =  cleanText(article.getAttribute("title").trim());
+				if(!title.isBlank()) {
+					contents.add(title);
 				}
-			}
-
-			return mapper.writeValueAsString(contents);
-		} catch (Exception e) {
-			System.err.println(">>> Falied to Parse XML: " + e.getMessage());
-			return "[]";
-		}
-	}
-
-	private static String extractEeDoc(String xml) {
-		/*
-		* xml 중 paragraph 내부의 증상만 받아옴
-		* 증상 중 comma 로 구분되어 있는건 각각 잘라서 증상 리스트에 저장
-		* 리스트 를 json으로 변환하여 string으로 반환
-		* */
-		if (xml == null || xml.isBlank()) {
-			return "[]";
-		}
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			Document doc = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-			NodeList paragraphNodes = doc.getElementsByTagName("PARAGRAPH");
-
-			List<String> contents = new ArrayList<>();
-			for (int i = 0; i < paragraphNodes.getLength(); i++) {
-				String text = paragraphNodes.item(i).getTextContent().trim();
-				if (!text.isBlank()) {
-					String cleaned = cleanText(text);
-					if(!cleaned.isBlank()) {
-						String[] commaSplit = cleaned.split(",");
-						for (String illness : commaSplit) {
-							contents.add(illness.trim());
-						}
+				// paragraph 추출
+				NodeList paragraphs = article.getElementsByTagName("PARAGRAPH");
+				for (int j = 0; j < paragraphs.getLength(); j++) {
+					String text = cleanText(paragraphs.item(j).getTextContent().trim());
+					if (!text.isBlank()) {
+						contents.add(text);
 					}
-
 				}
 			}
 

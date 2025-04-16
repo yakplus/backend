@@ -63,7 +63,7 @@ public class MedicineApprovalDetailService implements MedicineApprovalDetailUseC
 
 
 
-		// medicineRepository.saveAll(entities);
+		medicineRepository.saveAll(entities);
 		return entities.size();
 	}
 }
