@@ -1,5 +1,9 @@
 package com.likelion.backendplus4.yakplus.domain.drug.dto;
 
+import java.util.List;
+
+import com.likelion.backendplus4.yakplus.domain.drug.entity.Ingredient;
+
 public record DrugProductRawDto(
 	String itemSeq,           // 품목일련번호
 	String itemName,          // 품목명
@@ -7,7 +11,7 @@ public record DrugProductRawDto(
 	String itemPermitDate,    // 허가일자
 	String etcOtcCode,        // 전문일반
 	String chart,             // 성상
-	String materialName,      // 원료성분
+	List<Ingredient> ingredientList,      // 원료성분
 	String storageMethod,     // 저장방법
 	String validTerm,         // 유효기간
 	String packUnit,          // 포장단위

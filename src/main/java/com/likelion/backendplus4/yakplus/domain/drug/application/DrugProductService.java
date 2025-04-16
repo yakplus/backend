@@ -45,7 +45,7 @@ public class DrugProductService {
 		String apiUrl = UriComponentsBuilder.fromUriString(BASE_URL + DETAIL_URL)
 			.queryParam("serviceKey", API_KEY)
 			.queryParam("pageNo", 1)
-			.queryParam("numOfRows", 100)
+			.queryParam("numOfRows", 10)
 			.build(false)
 			.toUriString();
 

@@ -1,11 +1,18 @@
 package com.likelion.backendplus4.yakplus.domain.drug.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.likelion.backendplus4.yakplus.domain.drug.dto.DrugProductRawDto;
 import com.likelion.backendplus4.yakplus.global.util.parser.XmlParserUtil;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,8 +44,10 @@ public class DrugProductRaw {
 	@Column(name = "chart")
 	private String chart; // 성상
 
-	@Column(name = "material_name")
-	private String materialName; // 원료성분
+	@ElementCollection(fetch = FetchType.LAZY)
+	@CollectionTable(name = "drug_product_ingredients", joinColumns = @JoinColumn(name = "drug_product_id"))
+	private List<Ingredient> ingredients = new ArrayList<>();
+
 
 	@Column(name = "storage_method")
 	private String storageMethod; // 저장방법
@@ -92,7 +101,7 @@ public class DrugProductRaw {
 			.itemPermitDate(dto.itemPermitDate())
 			.etcOtcCode(dto.etcOtcCode())
 			.chart(dto.chart())
-			.materialName(dto.materialName())
+			.ingredients(dto.ingredientList())
 			.storageMethod(dto.storageMethod())
 			.validTerm(dto.validTerm())
 			.packUnit(dto.packUnit())
