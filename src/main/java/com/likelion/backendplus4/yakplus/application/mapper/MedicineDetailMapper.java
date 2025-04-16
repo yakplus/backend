@@ -1,33 +1,35 @@
 package com.likelion.backendplus4.yakplus.application.mapper;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.likelion.backendplus4.yakplus.application.dto.out.external.DrugApprovalDetailResponseDto;
-import com.likelion.backendplus4.yakplus.application.dto.out.external.DrugDetailDto;
+import com.likelion.backendplus4.yakplus.application.dto.out.external.MedicineApprovalDetailResponseDto;
+import com.likelion.backendplus4.yakplus.application.dto.out.persistance.MedicineDetailDto;
 
-public class DrugDetailMapper {
-	public static DrugApprovalDetailResponseDto toResponseDto(Map<String, Object> raw) {
+public class MedicineDetailMapper {
+	public static MedicineApprovalDetailResponseDto toResponseDto(Map<String, Object> raw) {
 		Map<String, Object> headerMap = (Map<String, Object>) raw.get("header");
 		Map<String, Object> bodyMap = (Map<String, Object>) raw.get("body");
 		List<Map<String, Object>> itemList = (List<Map<String, Object>>) bodyMap.get("items");
 
-		DrugApprovalDetailResponseDto.Header header = new DrugApprovalDetailResponseDto.Header();
+		MedicineApprovalDetailResponseDto.Header header = new MedicineApprovalDetailResponseDto.Header();
 		header.setResultCode((String) headerMap.get("resultCode"));
 		header.setResultMsg((String) headerMap.get("resultMsg"));
 
-		DrugApprovalDetailResponseDto.Body body = new DrugApprovalDetailResponseDto.Body();
+		MedicineApprovalDetailResponseDto.Body body = new MedicineApprovalDetailResponseDto.Body();
 		body.setPageNo((Integer) bodyMap.get("pageNo"));
 		body.setNumOfRows((Integer) bodyMap.get("numOfRows"));
 		body.setTotalCount((Integer) bodyMap.get("totalCount"));
-		List<DrugDetailDto> detailDtos = itemList.stream()
+		List<MedicineDetailDto> detailDtos = itemList.stream()
 			.map(item -> {
-				DrugDetailDto dto = new DrugDetailDto();
+				MedicineDetailDto dto = new MedicineDetailDto();
 				dto.setItemSeq((String) item.get("ITEM_SEQ"));
 				dto.setItemName((String) item.get("ITEM_NAME"));
 				dto.setEntpName((String) item.get("ENTP_NAME"));
-				dto.setItemPermitDate((String) item.get("ITEM_PERMIT_DATE"));
+				dto.setItemPermitDate(LocalDate.parse((String) item.get("ITEM_PERMIT_DATE"), DateTimeFormatter.ofPattern("yyyyMMdd")));
 				dto.setEtcOtcCode((String) item.get("ETC_OTC_CODE"));
 				dto.setChart((String) item.get("CHART"));
 				dto.setMaterialName((String) item.get("MATERIAL_NAME"));
@@ -48,7 +50,7 @@ public class DrugDetailMapper {
 
 		body.setItems(detailDtos);
 
-		DrugApprovalDetailResponseDto response = new DrugApprovalDetailResponseDto();
+		MedicineApprovalDetailResponseDto response = new MedicineApprovalDetailResponseDto();
 		response.setHeader(header);
 		response.setBody(body);
 

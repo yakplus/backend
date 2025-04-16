@@ -5,8 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
-public class DrugApprovalDetailRequestDto {
+public class MedicineApprovalDetailRequestDto {
 	private Integer pageNo;
 	private Integer numOfRows;
 	private String type;
