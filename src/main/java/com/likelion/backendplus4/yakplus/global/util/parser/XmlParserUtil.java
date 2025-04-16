@@ -3,10 +3,13 @@ package com.likelion.backendplus4.yakplus.global.util.parser;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -55,25 +58,23 @@ public class XmlParserUtil {
 			StringBuilder extractedText = new StringBuilder();
 
 			// 먼저 <PARAGRAPH> 태그들을 찾아서 텍스트 추출
-			NodeList paragraphNodes = (NodeList) xPath.evaluate("//PARAGRAPH", doc, XPathConstants.NODESET);
+			NodeList paragraphNodes = (NodeList)xPath.evaluate("//PARAGRAPH", doc, XPathConstants.NODESET);
 			if (paragraphNodes.getLength() > 0) {
-				for (int i = 0; i < paragraphNodes.getLength(); i++) {
-					Node node = paragraphNodes.item(i);
-					String text = node.getTextContent().trim();
-					if (!text.isEmpty()) {
-						extractedText.append(text).append("\n");
-					}
-				}
+				IntStream.range(0, paragraphNodes.getLength())
+					.mapToObj(paragraphNodes::item)
+					.map(Node::getTextContent)
+					.map(String::trim)
+					.filter(text -> !text.isEmpty())
+					.forEach(text -> extractedText.append(text).append("\n"));
 			} else {
 				// 만약 <PARAGRAPH>가 없다면, <ARTICLE> 태그의 title 속성값을 사용하여 텍스트 추출
-				NodeList articleNodes = (NodeList) xPath.evaluate("//ARTICLE", doc, XPathConstants.NODESET);
-				for (int i = 0; i < articleNodes.getLength(); i++) {
-					Element article = (Element) articleNodes.item(i);
-					String title = article.getAttribute("title").trim();
-					if (!title.isEmpty()) {
-						extractedText.append(title).append("\n");
-					}
-				}
+				NodeList articleNodes = (NodeList)xPath.evaluate("//ARTICLE", doc, XPathConstants.NODESET);
+				IntStream.range(0, articleNodes.getLength())
+					.mapToObj(articleNodes::item)
+					.map(Element.class::cast)
+					.map(el -> el.getAttribute("title").trim())
+					.filter(title -> !title.isEmpty())
+					.forEach(title -> extractedText.append(title).append("\n"));
 			}
 			return extractedText.toString().trim();
 		} catch (Exception e) {
@@ -212,35 +213,16 @@ public class XmlParserUtil {
 	public static List<Ingredient> parseIngredients(String raw) {
 		if (raw == null || raw.isBlank()) return List.of();
 
-		// 세미콜론으로 성분 항목 분리
-		String[] parts = raw.split(";");
-		List<Ingredient> result = new ArrayList<>();
-
-		// 각 성분 항목 파싱
-		for (String part : parts) {
-			// 파이프(|) 기호로 필드 분리
-			String[] fields = part.split("\\|");
-			Map<String, String> map = new HashMap<>();
-			// 각 필드를 "키 : 값"으로 분리하여 맵에 저장
-			for (String field : fields) {
-				String[] keyValue = field.split(":", 2);
-				if (keyValue.length == 2) {
-					map.put(keyValue[0].trim(), keyValue[1].trim());
-				}
-			}
-
-			// Ingredient 객체 생성 후 맵에서 값 설정
-			Ingredient ingredient = new Ingredient();
-			ingredient.setTotalContent(map.getOrDefault("총량", ""));
-			ingredient.setName(map.getOrDefault("성분명", ""));
-			ingredient.setAmount(map.getOrDefault("분량", ""));
-			ingredient.setUnit(map.getOrDefault("단위", ""));
-			ingredient.setStandard(map.getOrDefault("규격", ""));
-			ingredient.setInfo(map.getOrDefault("성분정보", ""));
-			ingredient.setRemark(map.getOrDefault("비고", ""));
-			result.add(ingredient);
-		}
-
-		return result;
+		return Arrays.stream(raw.split(";"))
+			.map(part -> Arrays.stream(part.split("\\|"))
+				.map(field -> field.split(":", 2))
+				.filter(kv -> kv.length == 2)
+				.collect(Collectors.toMap(
+					kv -> kv[0].trim(),
+					kv -> kv[1].trim()
+				))
+			)
+			.map(Ingredient::from)
+			.collect(Collectors.toList());
 	}
 }
