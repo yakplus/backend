@@ -45,30 +45,38 @@ public class XmlParserUtil {
 			return "";
 		}
 		try {
-			// DocumentBuilderFactory를 생성하여 XML 파싱에 필요한 DocumentBuilder 획득
+			// XML 파싱 준비
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
-
-			// XML 문자열을 InputSource로 감싸고 파싱함
 			InputSource inputSource = new InputSource(new StringReader(xmlData));
 			Document doc = builder.parse(inputSource);
-
-			// XPath를 사용하여 모든 PARAGRAPH 태그 노드를 선택
 			XPath xPath = XPathFactory.newInstance().newXPath();
-			NodeList paragraphNodes = (NodeList) xPath.evaluate("//PARAGRAPH", doc, XPathConstants.NODESET);
+
 			StringBuilder extractedText = new StringBuilder();
 
-			// 각 PARAGRAPH 노드의 텍스트를 추출하고 줄바꿈을 추가
-			for (int i = 0; i < paragraphNodes.getLength(); i++) {
-				Node node = paragraphNodes.item(i);
-				String text = node.getTextContent().trim();
-				if (!text.isEmpty()) {
-					extractedText.append(text).append("\n");
+			// 먼저 <PARAGRAPH> 태그들을 찾아서 텍스트 추출
+			NodeList paragraphNodes = (NodeList) xPath.evaluate("//PARAGRAPH", doc, XPathConstants.NODESET);
+			if (paragraphNodes.getLength() > 0) {
+				for (int i = 0; i < paragraphNodes.getLength(); i++) {
+					Node node = paragraphNodes.item(i);
+					String text = node.getTextContent().trim();
+					if (!text.isEmpty()) {
+						extractedText.append(text).append("\n");
+					}
+				}
+			} else {
+				// 만약 <PARAGRAPH>가 없다면, <ARTICLE> 태그의 title 속성값을 사용하여 텍스트 추출
+				NodeList articleNodes = (NodeList) xPath.evaluate("//ARTICLE", doc, XPathConstants.NODESET);
+				for (int i = 0; i < articleNodes.getLength(); i++) {
+					Element article = (Element) articleNodes.item(i);
+					String title = article.getAttribute("title").trim();
+					if (!title.isEmpty()) {
+						extractedText.append(title).append("\n");
+					}
 				}
 			}
 			return extractedText.toString().trim();
 		} catch (Exception e) {
-			// 예외 발생 시 스택 트레이스 출력 후 빈 문자열 리턴
 			e.printStackTrace();
 			return "";
 		}
