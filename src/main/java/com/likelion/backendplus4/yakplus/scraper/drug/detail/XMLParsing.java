@@ -49,7 +49,7 @@ public class XMLParsing {
 		public List<ArticleWrapper> articles = new ArrayList<>();
 
 		@Override
-		public SectionWrapper parseElement(Element section){
+		public SectionWrapper parseElement(Element element) {
 			this.section = section;
 			sectionJson = mapper.createObjectNode();
 			toJsonNodeFromElement(sectionJson, section);
@@ -61,15 +61,9 @@ public class XMLParsing {
 		public Element article;
 		public ObjectNode articleJson;
 
-		public ArticleWrapper(Element section) {
-			this.article = section;
-			articleJson = mapper.createObjectNode();
-			toJsonNodeFromElement(articleJson, section);
-		}
-
 		@Override
-		public ArticleWrapper parseElement(Element section){
-			this.article = section;
+		public ArticleWrapper parseElement(Element element){
+			this.article = element;
 			articleJson = mapper.createObjectNode();
 			toJsonNodeFromElement(articleJson, article);
 			return this;
