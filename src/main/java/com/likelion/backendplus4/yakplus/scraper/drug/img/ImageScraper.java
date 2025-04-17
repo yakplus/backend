@@ -8,12 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelion.backendplus4.yakplus.scraper.drug.ApiResponseMapper;
 import com.likelion.backendplus4.yakplus.scraper.drug.ApiUriCompBuilder;
-import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApiDataDrugDetail;
+import com.likelion.backendplus4.yakplus.scraper.drug.detail.GovDrugDetail;
 import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApiDataDrugRepo;
 
 import jakarta.transaction.Transactional;
@@ -41,12 +40,12 @@ public class ImageScraper {
 
 
 		//100번 반복
-		List<ApiDataDrugDetail> oldDatas = detailRepo.findAll();
+		List<GovDrugDetail> oldDatas = detailRepo.findAll();
 		List<ApiDataDrugImg> imgDatas = new ArrayList<>();
 
-		for (ApiDataDrugDetail oldData : oldDatas) {
-			System.out.println("oldData = " + oldData.getSeq());
-			URI uri = uriCompBuilder.getUriForImgApiBySeq(oldData.getSeq().toString());
+		for (GovDrugDetail oldData : oldDatas) {
+			System.out.println("oldData = " + oldData.getDrugId());
+			URI uri = uriCompBuilder.getUriForImgApiBySeq(oldData.getDrugId().toString());
 			String response = restTemplate.getForObject(uri, String.class);
 			JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
 

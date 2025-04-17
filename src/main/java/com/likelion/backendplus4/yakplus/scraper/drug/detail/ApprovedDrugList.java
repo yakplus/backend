@@ -27,55 +27,62 @@ public class ApprovedDrugList {
     private final RestTemplate restTemplate;
     private final ApiUriCompBuilder apiUriCompBuilder;
     private final ApiDataDrugRepo repository;
+    private final XMLParseTest xmlParseTest;
 
     @Transactional
     public void getAPIData(){
         log.info("API 데이터 요청");
+
         String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(), String.class);
         log.debug("API Response: {}", response);
 
         JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
-        List<ApiDataDrugDetail> drugs = toListFromJson(items);
+        List<GovDrugDetail> drugs = toListFromJson(items);
+        for (GovDrugDetail drug : drugs) {
+            System.out.println(drug);
+        }
         repository.saveAllAndFlush(drugs);
 
     }
 
-    private List<ApiDataDrugDetail> toListFromJson(JsonNode items) {
+    private List<GovDrugDetail> toListFromJson(JsonNode items) {
 
         log.info("items 약품 객체로 맵핑");
         try {
-            List<ApiDataDrugDetail> apiDataDrugDetails = objectMapper.readValue(items.toString(),
-                                                        new TypeReference<List<ApiDataDrugDetail>>() {
-                                                        });
-
+            List<GovDrugDetail> apiDataDrugDetails = toApiDetails(items);
 
             for (int i = 0; i < apiDataDrugDetails.size(); i++) {
-                ApiDataDrugDetail drug = apiDataDrugDetails.get(i);
-                try {
-                    String usageXmlText = items.get(i).get("UD_DOC_DATA").asText();
-                    JsonNode jsonNode = toJsonFromXml(usageXmlText).path("PARAGRAPH");
-                    List<String> usages = getValueFromArrayNode(jsonNode,"");
-                    drug.setDrugUsage(usages);
-                } catch (JsonProcessingException e) {
-                    log.error("용법 추출 실패");
-                    throw new RuntimeException(e);
-                }
+                GovDrugDetail drugDetail = apiDataDrugDetails.get(i);
+                JsonNode item = items.get(i);
 
-                try {
-                    String xmlText = items.get(i).get("NB_DOC_DATA").asText();
-                    JsonNode jsonNode = toJsonFromXml(xmlText);
-                    // List<String> precautions = getValueFromArrayNode(jsonNode,"title");
-                    drug.setPrecautions(getPrecau(jsonNode));
-                } catch (JsonProcessingException e) {
-                    log.error("주의 사항 실패");
-                    throw new RuntimeException(e);
-                }
+                String materialRawData = item.get("MATERIAL_NAME").asText();
+                String materialInfo = XMLParsing.parseMaterial(materialRawData);
+                drugDetail.changeMaterialInfo(materialInfo);
+
+                String efficacyXmlText = item.get("EE_DOC_DATA").asText();
+                String efficacy = XMLParsing.toJsonFromXml(efficacyXmlText);
+                drugDetail.changeEfficacy(efficacy);
+
+                String usageXmlText = items.get(i).get("UD_DOC_DATA").asText();
+                String usages = XMLParsing.toJsonFromXml(usageXmlText);
+                drugDetail.changeUsage(usages);
+
+                String precautionxmlText = items.get(i).get("NB_DOC_DATA").asText();
+                String precautions = XMLParsing.toJsonFromXml(precautionxmlText);
+                drugDetail.changePrecaution(precautions);
             }
 
             return apiDataDrugDetails;
+        } catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+    private List<GovDrugDetail> toApiDetails(JsonNode items) {
+        try{
+            return objectMapper.readValue(items.toString(),
+                        new TypeReference<List<GovDrugDetail>>() {});
         } catch (JsonProcessingException e) {
-            log.error("items JSON 처리 실패");
-            //TODO: CustomException 만들고, ControllerAdvice로 예외처리 필요
             throw new RuntimeException(e);
         }
     }

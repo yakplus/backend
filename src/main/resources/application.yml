@@ -17,9 +17,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
-api:
+#logging:
+#  level:
+#    root: DEBUG
+gov:
   host: apis.data.go.kr
-  serviceKey: ${API_SERVICE_KEY}
+  serviceKey: ${GOV_SERVICE_KEY}
   type: json
   path:
     detail: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnDtlInq05

@@ -23,11 +23,11 @@ public class ApiUriCompBuilder {
     private final String API_IMG_PATH ;
     private final String RESPONSE_TYPE;
 
-    public ApiUriCompBuilder(@Value("${api.host}") String host,
-                            @Value("${api.serviceKey}") String serviceKey,
-                            @Value("${api.path.detail}") String pathDetail,
-                            @Value("${api.path.img}") String pathImg,
-                            @Value("${api.type}") String type) {
+    public ApiUriCompBuilder(@Value("${gov.host}") String host,
+                            @Value("${gov.serviceKey}") String serviceKey,
+                            @Value("${gov.path.detail}") String pathDetail,
+                            @Value("${gov.path.img}") String pathImg,
+                            @Value("${gov.type}") String type) {
         this.HOST = host;
         this.SERVICE_KEY = serviceKey;
         this.API_DETAIL_PATH = pathDetail;
