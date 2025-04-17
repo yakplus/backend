@@ -25,26 +25,54 @@ public class XMLParsing {
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
-	private static class SectionWrapper {
+
+	private static class JsonWrapperFactory {
+		public static JsonWrapper createWrapper(String tagName) {
+			switch (tagName){
+				case "SECTION":
+					return new SectionWrapper();
+					break;
+				case "ARTICLE":
+					return new ArticleWrapper();
+					break;
+			}
+		}
+	}
+
+	private static interface JsonWrapper {
+		<T extends JsonWrapper> T parseElement(Element element);
+	}
+
+	private static class SectionWrapper implements JsonWrapper{
 		public Element section;
 		public ObjectNode sectionJson;
 		public List<ArticleWrapper> articles = new ArrayList<>();
 
-		public SectionWrapper(Element section) {
+		@Override
+		public SectionWrapper parseElement(Element section){
 			this.section = section;
 			sectionJson = mapper.createObjectNode();
-			putDocElement(sectionJson, section);
+			toJsonNodeFromElement(sectionJson, section);
+			return this;
 		}
 	}
 
-	private static class ArticleWrapper {
+	private static class ArticleWrapper implements JsonWrapper{
 		public Element article;
 		public ObjectNode articleJson;
 
 		public ArticleWrapper(Element section) {
 			this.article = section;
 			articleJson = mapper.createObjectNode();
-			putDocElement(articleJson, section);
+			toJsonNodeFromElement(articleJson, section);
+		}
+
+		@Override
+		public ArticleWrapper parseElement(Element section){
+			this.article = section;
+			articleJson = mapper.createObjectNode();
+			toJsonNodeFromElement(articleJson, article);
+			return this;
 		}
 	}
 
@@ -55,7 +83,7 @@ public class XMLParsing {
 			DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 			Document doc = getDocumentFromXML(xml, builder);
 			Element docElement = doc.getDocumentElement();
-			putDocElement(rootJson, docElement);
+			toJsonNodeFromElement(rootJson, docElement);
 
 			List<SectionWrapper> sectionWrappers = new ArrayList<>();
 			parseTag(doc, sectionWrappers, "SECTION");
@@ -123,8 +151,9 @@ public class XMLParsing {
 	private static void parseTag(Document doc, List targetList, String tagName) {
 		NodeList nodeList = doc.getElementsByTagName(tagName);
 		for (int i = 0; i < nodeList.getLength(); i++) {
-			Element section = (Element) nodeList.item(i);
-			targetList.add(new SectionWrapper(section));
+			Element element = (Element) nodeList.item(i);
+			JsonWrapper wrapperInstance = JsonWrapperFactory.createWrapper(tagName);
+			targetList.add(wrapperInstance.parseElement(element));
 		}
 	}
 
@@ -135,7 +164,7 @@ public class XMLParsing {
 		return sectionNodes.getLength() > 0;
 	}
 
-	private static void putDocElement(ObjectNode jsonNode, Element element) {
+	private static void toJsonNodeFromElement(ObjectNode jsonNode, Element element) {
 		NamedNodeMap attributes = element.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Attr attr = (Attr) attributes.item(i);
