@@ -19,20 +19,30 @@ public class LoggerWithTraceId {
     // Logger와 traceId를 함께 가져오는 정적 팩토리 메서드
     public static LoggerWithTraceId create() {
         // traceId가 null일 경우 기본값 설정
-        String traceId = MDC.get("traceId");
-        if (traceId == null || traceId.isEmpty()) {
-            // traceId가 null 또는 빈 값일 경우 예외를 던지거나 기본값을 설정
-            traceId = "default-trace-id";  // 기본 traceId 설정
-             throw new IllegalStateException("TraceId cannot be null or empty");
-        }
+        String traceId = makeTraceId();
 
         // getLogger 호출 시도, 예외 처리 추가
+        Logger logger = makeLogger();
+
+        return new LoggerWithTraceId(logger, traceId);  // Logger와 traceId를 담은 객체 반환
+    }
+
+    private static Logger makeLogger() {
         Logger logger = LoggerFactory.getLogger(getCallingClassName());
         if (logger == null) {
             throw new IllegalStateException("Logger creation failed for the class: " + getCallingClassName());
         }
+        return logger;
+    }
 
-        return new LoggerWithTraceId(logger, traceId);  // Logger와 traceId를 담은 객체 반환
+    private static String makeTraceId() {
+        String traceId = MDC.get("traceId");
+        if (traceId == null || traceId.isEmpty()) {
+            // traceId가 null 또는 빈 값일 경우 예외를 던지거나 기본값을 설정
+            traceId = "default-trace-id";  // 기본 traceId 설정
+            throw new IllegalStateException("TraceId cannot be null or empty");
+        }
+        return traceId;
     }
 
     // 호출된 클래스 정보 자동으로 추출
