@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import lombok.Getter;
+
 public class XMLParsing {
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -31,10 +33,11 @@ public class XMLParsing {
 			switch (tagName){
 				case "SECTION":
 					return new SectionWrapper();
-					break;
 				case "ARTICLE":
 					return new ArticleWrapper();
-					break;
+				default:
+					//TODO 예외수정
+					throw new IllegalArgumentException("Unknown tag: " + tagName);
 			}
 		}
 	}
@@ -46,6 +49,8 @@ public class XMLParsing {
 	private static class SectionWrapper implements JsonWrapper{
 		public Element section;
 		public ObjectNode sectionJson;
+
+		@Getter
 		public List<ArticleWrapper> articles = new ArrayList<>();
 
 		@Override
@@ -83,11 +88,7 @@ public class XMLParsing {
 			parseTag(doc, sectionWrappers, "SECTION");
 
 			for (SectionWrapper wrapper : sectionWrappers) {
-				parseTag(doc, sectionWrappers, "ARTICLE");
-			}
-
-
-			for (SectionWrapper wrapper : sectionWrappers) {
+				parseTag(doc, wrapper.getArticles(), "ARTICLE");
 				for (ArticleWrapper articleWrapper : wrapper.articles) {
 					NodeList paragraphNodes = articleWrapper.article.getElementsByTagName("PARAGRAPH");
 					ArrayNode paragraphArray = mapper.createArrayNode();
