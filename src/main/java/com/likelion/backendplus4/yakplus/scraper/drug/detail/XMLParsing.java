@@ -55,7 +55,7 @@ public class XMLParsing {
 
 		@Override
 		public SectionWrapper parseElement(Element element) {
-			this.section = section;
+			this.section = element;
 			sectionJson = mapper.createObjectNode();
 			toJsonNodeFromElement(sectionJson, section);
 			return this;
