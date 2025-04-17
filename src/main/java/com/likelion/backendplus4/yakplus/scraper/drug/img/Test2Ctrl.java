@@ -4,8 +4,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApprovedDrugList;
-
 import lombok.RequiredArgsConstructor;
 
 @RestController

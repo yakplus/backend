@@ -22,12 +22,11 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ApprovedDrugList {
+public class DrugApprovalDetailScraperService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
     private final ApiUriCompBuilder apiUriCompBuilder;
     private final ApiDataDrugRepo repository;
-    private final XMLParseTest xmlParseTest;
 
     @Transactional
     public void getAPIData(){
@@ -56,19 +55,19 @@ public class ApprovedDrugList {
                 JsonNode item = items.get(i);
 
                 String materialRawData = item.get("MATERIAL_NAME").asText();
-                String materialInfo = XMLParsing.parseMaterial(materialRawData);
+                String materialInfo = MaterialParser.parseMaterial(materialRawData);
                 drugDetail.changeMaterialInfo(materialInfo);
 
                 String efficacyXmlText = item.get("EE_DOC_DATA").asText();
-                String efficacy = XMLParsing.toJsonFromXml(efficacyXmlText);
+                String efficacy = XMLParser.toJson(efficacyXmlText);
                 drugDetail.changeEfficacy(efficacy);
 
                 String usageXmlText = items.get(i).get("UD_DOC_DATA").asText();
-                String usages = XMLParsing.toJsonFromXml(usageXmlText);
+                String usages = XMLParser.toJson(usageXmlText);
                 drugDetail.changeUsage(usages);
 
                 String precautionxmlText = items.get(i).get("NB_DOC_DATA").asText();
-                String precautions = XMLParsing.toJsonFromXml(precautionxmlText);
+                String precautions = XMLParser.toJson(precautionxmlText);
                 drugDetail.changePrecaution(precautions);
             }
 
@@ -99,17 +98,21 @@ public class ApprovedDrugList {
 
         return result;
     }
-    private String replaceText(String text){
-        return text.replace("&#x119e; ", "&")
-            .replace("&#x2022; ","")
-            .replace("&#x301c; ", "~");
-    }
+
+    // TODO: 추후 삭제 예정
+    // private String replaceText(String text){
+    //     return text.replace("&#x119e; ", "&")
+    //         .replace("&#x2022; ","")
+    //         .replace("&#x301c; ", "~");
+    // }
     private List<String> getValueFromArrayNode(JsonNode jsonNode, String key) {
         List<String> result = new ArrayList<>();
         if(!jsonNode.isNull()){
             if(jsonNode.isArray()){
                 for(int j = 0; j < jsonNode.size(); j++){
-                    result.add(replaceText(jsonNode.get(j).get(key).asText()));
+                    // TODO: 추후 삭졔
+                    //  result.add(replaceText(jsonNode.get(j).get(key).asText()));
+                    result.add(jsonNode.get(j).get(key).asText());
                 }
             } else {
                 if(jsonNode.get(key)!=null){
