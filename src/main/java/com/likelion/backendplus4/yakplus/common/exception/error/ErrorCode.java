@@ -23,8 +23,9 @@ import org.springframework.http.HttpStatus;
  * 001: 첫 번째 오류
  * 002: 두 번째 오류
  * 003: 세 번째 오류, 등등
+ *
+ * @modified 2025-04-18
  * @since 2025-04-16
- * @modify 2025-04-16
  */
 public interface ErrorCode {
 
@@ -32,9 +33,9 @@ public interface ErrorCode {
      * HTTP 상태 반환
      *
      * @return HTTP 상태
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     HttpStatus httpStatus();
 
@@ -42,9 +43,9 @@ public interface ErrorCode {
      * 에러 코드 번호 반환
      *
      * @return 에러 코드 번호
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     int codeNumber();
 
@@ -52,9 +53,9 @@ public interface ErrorCode {
      * 에러 메시지 반환
      *
      * @return 에러 메시지
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     String message();
 }

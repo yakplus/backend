@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 /**
  * 전역 예외 처리 클래스 컨트롤러에서 발생한 예외를 공통적으로 처리한다.
  *
+ * @modified 2025-04-18
  * @since 2025-04-16
- * @modify 2025-04-18
  */
 @Slf4j
 @RestControllerAdvice
@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
      * @param message    에러 메시지
      * @param ex         발생한 예외 객체
      * @return ResponseEntity<ApiResponse<Void>> 형태의 에러 응답
-     * @since 2025-04-18
      * @author 박찬병
-     * @modify 2025-04-18 박찬병
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-18
      */
     private ResponseEntity<ApiResponse<Void>> buildErrorResponse(
         HttpStatus status, String errorCode, String message, Throwable ex) {
@@ -48,9 +48,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex CustomException 객체
      * @return 에러 응답
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException ex) {
@@ -68,9 +68,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex 예외 객체
      * @return 에러 응답
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -82,9 +82,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex 예외 객체
      * @return 에러 응답
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
@@ -97,9 +97,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex BindException 오류
      * @return 에러 응답
-     * @since 2025-04-17
      * @author 박찬병
-     * @modify 2025-04-17 박찬병
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-17
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiResponse<Void>> handleBindException(BindException ex) {
@@ -111,9 +111,9 @@ public class GlobalExceptionHandler {
      * BindingResult 분석 후 필드별 오류 메시지 조합
      *
      * @return 에러 응답
-     * @since 2025-04-16
      * @author 박찬병
-     * @modify 2025-04-17 박찬병
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     private static String getErrorMessage(BindException ex) {
         return ex.getBindingResult().getFieldErrors().stream()
@@ -126,9 +126,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex 예외 객체
      * @return 에러 응답
-     * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 정안식
+     * @modified 2025-04-18 박찬병
+     * @since 2025-04-16
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
