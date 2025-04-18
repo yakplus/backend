@@ -1,14 +1,16 @@
-package com.likelion.backendplus4.yakplus.scraper.drug.img;
+package com.likelion.backendplus4.yakplus.scraper.drug.img.repository;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.ToString;
 
 @Entity
 @ToString
-public class ApiDataDrugImg {
+@Table(name="API_DATA_DRUG_IMG")
+public class ApiDataDrugImgEntity {
 	@Id
 	@JsonProperty("ITEM_SEQ")
 	private Long seq;
