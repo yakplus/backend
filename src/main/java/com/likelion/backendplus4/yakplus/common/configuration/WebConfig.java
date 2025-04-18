@@ -9,6 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private static final String ALL_PATTERN = "/**";
+
     @Autowired
     private LogInterceptor logInterceptor;
 
@@ -16,6 +18,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // 모든 요청에 대해 LogInterceptor를 적용
         registry.addInterceptor(logInterceptor)
-                .addPathPatterns("/**");  // 모든 URL 패턴에 적용
+                .addPathPatterns(ALL_PATTERN);  // 모든 URL 패턴에 적용
     }
 }

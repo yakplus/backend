@@ -14,71 +14,92 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+
 @Configuration
 public class LogbackConfig {
+    private static final String LOG_DIRECTORY = "logs";
+    private static final String LOG_FILE_NAME = "like-lion.log";
+    private static final String LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n";
+    private static final int MAX_HISTORY = 30;
+    private static final String TOTAL_SIZE_CAP = "1GB";
 
     @PostConstruct
     public void configure() {
-        // LoggerContext 초기화
+        LoggerContext context = initializeLoggerContext();
+        createLogDirectory();
+
+        ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender(context);
+        FileAppender<ILoggingEvent> fileAppender = createFileAppender(context);
+
+        configureRootLogger(context, consoleAppender, fileAppender);
+    }
+
+    private LoggerContext initializeLoggerContext() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        context.reset();  // 기존 설정 초기화
+        context.reset();
+        return context;
+    }
 
-        // 로그 파일 디렉토리 확인 및 생성
-        String logDirectory = "logs";
-        if (!Files.exists(Paths.get(logDirectory))) {
-            try {
-                Files.createDirectories(Paths.get(logDirectory));  // 디렉토리 생성
-            } catch (Exception e) {
-                e.printStackTrace();  // 디렉토리 생성 실패 시 예외 처리
+    private void createLogDirectory() {
+        Path logPath = Paths.get(LOG_DIRECTORY);
+        try {
+            if (!Files.exists(logPath)) {
+                Files.createDirectories(logPath);
             }
+        } catch (Exception e) {
+            throw new RuntimeException("로그 디렉토리 생성 실패", e);
         }
+    }
 
-        // 콘솔 Appender 설정
-        PatternLayoutEncoder consoleEncoder = createEncoder(context);
-        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
-        consoleAppender.setContext(context);
-        consoleAppender.setEncoder(consoleEncoder);
-        consoleAppender.start();
+    private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext context) {
+        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+        appender.setContext(context);
+        appender.setEncoder(createEncoder(context));
+        appender.start();
+        return appender;
+    }
 
-        // 파일 Appender 설정
-        PatternLayoutEncoder fileEncoder = createEncoder(context);
-        FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
-        fileAppender.setContext(context);
-        fileAppender.setFile("logs/like-lion.log");  // 파일 경로 설정
-        fileAppender.setAppend(true);  // 기존 로그 이어쓰기
-        fileAppender.setEncoder(fileEncoder);
-        fileAppender.start();
+    private FileAppender<ILoggingEvent> createFileAppender(LoggerContext context) {
+        FileAppender<ILoggingEvent> appender = new FileAppender<>();
+        appender.setContext(context);
+        appender.setFile(LOG_DIRECTORY + "/" + LOG_FILE_NAME);
+        appender.setAppend(true);
+        appender.setEncoder(createEncoder(context));
 
-        // 롤링 파일 Appender 설정 (시간 기반)
-        TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = createRollingPolicy(context);
-        rollingPolicy.setParent(fileAppender);
-        rollingPolicy.start();  // 롤링 정책 시작
+        TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = createRollingPolicy(context, appender);
+        rollingPolicy.start();
 
-        // 루트 로거 설정: 콘솔 + 파일 Appender 등록
-        Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME); // 정확하게 Logger 객체 가져오기
-        if (logger instanceof ch.qos.logback.classic.Logger) {
-            ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) logger;
-            rootLogger.setLevel(Level.INFO);  // INFO 레벨로 설정
-            rootLogger.addAppender(consoleAppender);  // 콘솔 Appender 추가
-            rootLogger.addAppender(fileAppender);  // 파일 Appender 추가
-        }
+        appender.start();
+        return appender;
     }
 
     private PatternLayoutEncoder createEncoder(LoggerContext context) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
-        encoder.setPattern("%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n");
+        encoder.setPattern(LOG_PATTERN);
         encoder.start();
         return encoder;
     }
 
-    private TimeBasedRollingPolicy<ILoggingEvent> createRollingPolicy(LoggerContext context) {
-        TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = new TimeBasedRollingPolicy<>();
-        rollingPolicy.setContext(context);
-        rollingPolicy.setFileNamePattern("logs/like-lion.%d{yyyy-MM-dd}.log"); // 로그 파일이 날짜별로 롤링됨
-        rollingPolicy.setMaxHistory(30);  // 최대 보관 기간 30일
-        rollingPolicy.setTotalSizeCap(FileSize.valueOf("1GB"));  // 총 로그 크기 제한 1GB
-        return rollingPolicy;
+    private TimeBasedRollingPolicy<ILoggingEvent> createRollingPolicy(LoggerContext context, FileAppender<ILoggingEvent> parent) {
+        TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<>();
+        policy.setContext(context);
+        policy.setParent(parent);
+        policy.setFileNamePattern(LOG_DIRECTORY + "/" + LOG_FILE_NAME.replace(".log", ".%d{yyyy-MM-dd}.log"));
+        policy.setMaxHistory(MAX_HISTORY);
+        policy.setTotalSizeCap(FileSize.valueOf(TOTAL_SIZE_CAP));
+        return policy;
+    }
+
+    private void configureRootLogger(LoggerContext context, ConsoleAppender<ILoggingEvent> consoleAppender, FileAppender<ILoggingEvent> fileAppender) {
+        Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if (logger instanceof ch.qos.logback.classic.Logger) {
+            ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) logger;
+            rootLogger.setLevel(Level.INFO);
+            rootLogger.addAppender(consoleAppender);
+            rootLogger.addAppender(fileAppender);
+        }
     }
 }

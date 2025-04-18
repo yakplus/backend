@@ -1,31 +1,37 @@
 package com.likelion.backendplus4.yakplus.logtest;
 
 import com.likelion.backendplus4.yakplus.common.util.LogLevel;
-import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
-
-import com.likelion.backendplus4.yakplus.logtest.MyService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
+
 @RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class MyController {
 
-    @Autowired
-    private MyService myService;
+    private static final String DATA_PROCESSING_START = "데이터 처리를 시작합니다";
+    private static final String DATA_PROCESSING_SUCCESS = "데이터 처리가 성공적으로 완료되었습니다";
+    private static final String DATA_PROCESSING_ERROR = "데이터 처리 중 오류가 발생했습니다";
+
+    private final MyService myService;
 
     @GetMapping("/process")
-    public String process() {
-        log(LogLevel.INFO, "Controller: Start processing");
+    public ResponseEntity<String> process() {
+        log(LogLevel.INFO, DATA_PROCESSING_START);
 
         try {
-            // 서비스 호출
             String result = myService.processData();
-            log("Controller: Processing complete");
-            return result;
+            log(LogLevel.INFO, DATA_PROCESSING_SUCCESS);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            log(LogLevel.ERROR, "Controller: Error occurred while processing");
-            return "Error occurred!";
+            log(LogLevel.ERROR, DATA_PROCESSING_ERROR, e);
+            return ResponseEntity.internalServerError()
+                    .body(DATA_PROCESSING_ERROR);
         }
     }
 }
