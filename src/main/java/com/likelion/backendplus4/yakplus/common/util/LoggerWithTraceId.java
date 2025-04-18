@@ -5,22 +5,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+/**
+ * TraceId를 포함한 로거 클래스
+ * 
+ * @modified 2025-04-18
+ * @since 2025-04-16
+ */
 @Getter
 public class LoggerWithTraceId {
     private final Logger logger;
     private final String traceId;
 
+    /**
+     * LoggerWithTraceId 생성자
+     *
+     * @param logger Logger 로거 객체
+     * @param traceId String 추적 ID
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private LoggerWithTraceId(Logger logger, String traceId) {
         this.logger = logger;
         this.traceId = traceId;
     }
 
+    /**
+     * LoggerWithTraceId 인스턴스를 생성하는 팩토리 메서드
+     *
+     * @return LoggerWithTraceId 생성된 로거 인스턴스
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     public static LoggerWithTraceId create() {
         String traceId = makeTraceId();
         Logger logger = makeLogger();
         return new LoggerWithTraceId(logger, traceId);
     }
 
+    /**
+     * 로거를 생성하는 메서드
+     *
+     * @return Logger 생성된 로거
+     * @throws IllegalStateException 로거 생성 실패 시
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private static Logger makeLogger() {
         String callingClassName = getCallingClassName();
         if (callingClassName.trim().isEmpty()) {
@@ -34,12 +66,29 @@ public class LoggerWithTraceId {
         return logger;
     }
 
+    /**
+     * TraceId를 생성하는 메서드
+     *
+     * @return String 생성된 TraceId
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private static String makeTraceId() {
         String traceId = MDC.get("traceId");
         validateTraceId(traceId);
         return traceId;
     }
 
+    /**
+     * TraceId를 검증하는 메서드
+     *
+     * @param traceId String 검증할 TraceId
+     * @throws IllegalStateException 유효하지 않은 TraceId
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private static void validateTraceId(String traceId) {
         if (traceId == null) {
             throw new IllegalStateException("TraceId가 null입니다. MDC에 traceId가 설정되어 있는지 확인하세요.");
@@ -49,6 +98,15 @@ public class LoggerWithTraceId {
         }
     }
 
+    /**
+     * 호출한 클래스의 이름을 가져오는 메서드
+     *
+     * @return String 호출한 클래스명
+     * @throws IllegalStateException 스택 트레이스 관련 오류 발생 시
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private static String getCallingClassName() {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         if (stackTraceElements.length == 0) {

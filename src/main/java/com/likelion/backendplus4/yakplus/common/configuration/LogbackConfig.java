@@ -17,6 +17,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * 로깅 설정을 위한 설정 클래스
+ * 
+ * @modified 2025-04-18
+ * @since 2025-04-16
+ */
 @Configuration
 public class LogbackConfig {
     private static final String LOG_DIRECTORY = "logs";
@@ -25,6 +31,13 @@ public class LogbackConfig {
     private static final int MAX_HISTORY = 30;
     private static final String TOTAL_SIZE_CAP = "1GB";
 
+    /**
+     * 로깅 설정을 초기화하는 메서드
+     *
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     @PostConstruct
     public void configure() {
         LoggerContext context = initializeLoggerContext();
@@ -36,12 +49,27 @@ public class LogbackConfig {
         configureRootLogger(context, consoleAppender, fileAppender);
     }
 
+    /**
+     * LoggerContext를 초기화하는 메서드
+     *
+     * @return LoggerContext 초기화된 로거 컨텍스트
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private LoggerContext initializeLoggerContext() {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.reset();
         return context;
     }
 
+    /**
+     * 로그 디렉토리를 생성하는 메서드
+     *
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private void createLogDirectory() {
         Path logPath = Paths.get(LOG_DIRECTORY);
         try {
@@ -53,6 +81,15 @@ public class LogbackConfig {
         }
     }
 
+    /**
+     * 콘솔 어펜더를 생성하는 메서드
+     *
+     * @param context LoggerContext 로거 컨텍스트
+     * @return ConsoleAppender 생성된 콘솔 어펜더
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext context) {
         ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
         appender.setContext(context);
@@ -61,6 +98,15 @@ public class LogbackConfig {
         return appender;
     }
 
+    /**
+     * 파일 어펜더를 생성하는 메서드
+     *
+     * @param context LoggerContext 로거 컨텍스트
+     * @return FileAppender 생성된 파일 어펜더
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private FileAppender<ILoggingEvent> createFileAppender(LoggerContext context) {
         FileAppender<ILoggingEvent> appender = new FileAppender<>();
         appender.setContext(context);
@@ -75,6 +121,15 @@ public class LogbackConfig {
         return appender;
     }
 
+    /**
+     * 패턴 레이아웃 인코더를 생성하는 메서드
+     *
+     * @param context LoggerContext 로거 컨텍스트
+     * @return PatternLayoutEncoder 생성된 패턴 레이아웃 인코더
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private PatternLayoutEncoder createEncoder(LoggerContext context) {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
@@ -83,6 +138,16 @@ public class LogbackConfig {
         return encoder;
     }
 
+    /**
+     * 롤링 정책을 생성하는 메서드
+     *
+     * @param context LoggerContext 로거 컨텍스트
+     * @param parent FileAppender 부모 파일 어펜더
+     * @return TimeBasedRollingPolicy 생성된 롤링 정책
+     * @author 정안식
+     * @modified 2025-04-18
+     * @since 2025-04-16
+     */
     private TimeBasedRollingPolicy<ILoggingEvent> createRollingPolicy(LoggerContext context, FileAppender<ILoggingEvent> parent) {
         TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<>();
         policy.setContext(context);
@@ -93,6 +158,15 @@ public class LogbackConfig {
         return policy;
     }
 
+    /**
+     * 루트 로거를 설정하는 메서드
+     *
+     * @param context LoggerContext 로거 컨텍스트
+     * @param consoleAppender ConsoleAppender 콘솔 어펜더
+     * @param fileAppender FileAppender 파일 어펜더
+     * @author 정안식
+     * @since 2025-04-16
+     */
     private void configureRootLogger(LoggerContext context, ConsoleAppender<ILoggingEvent> consoleAppender, FileAppender<ILoggingEvent> fileAppender) {
         Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         if (logger instanceof ch.qos.logback.classic.Logger) {
