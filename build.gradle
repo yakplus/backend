@@ -44,7 +44,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.10'
 
-
+    // build.gradle
+    if (project.hasProperty('env') && project.env == 'test') {
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        }
+    }
 }
 
 tasks.named('test') {

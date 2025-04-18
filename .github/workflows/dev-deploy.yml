@@ -25,7 +25,7 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: Build Spring Boot (JAR)
-      run: ./gradlew bootJar
+      run: ./gradlew bootJar -Penv=test
 
     - name: Copy JAR to shared volume
       run: cp build/libs/*.jar /deploy/app.jar
