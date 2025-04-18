@@ -22,7 +22,7 @@ public class GovDrugDetail {
 	private String usage;
 	private String precaution;
 
-	private JsonNode jsonConverter(String json) {
+	public JsonNode toJson(String json) {
 		try {
 			return new ObjectMapper().readValue(json, JsonNode.class);
 		} catch (JsonProcessingException e) {
