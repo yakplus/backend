@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * 전역 예외 처리 클래스 컨트롤러에서 발생한 예외를 공통적으로 처리한다.
  *
  * @since 2025-04-16
+ * @modify 2025-04-18
  */
 @Slf4j
 @RestControllerAdvice
@@ -87,9 +88,9 @@ public class GlobalExceptionHandler {
      *
      * @param ex BindException 오류
      * @return 에러 응답
-     * @since 2025-04-16
+     * @since 2025-04-17
      * @author 박찬병
-     * @modify 2025-04-16 박찬병
+     * @modify 2025-04-17 박찬병
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiResponse<Void>> handleBindException(BindException ex) {

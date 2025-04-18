@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
  * 002: 두 번째 오류
  * 003: 세 번째 오류, 등등
  * @since 2025-04-16
+ * @modify 2025-04-16
  */
 public interface ErrorCode {
 

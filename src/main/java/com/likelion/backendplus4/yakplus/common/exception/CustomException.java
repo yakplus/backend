@@ -7,6 +7,7 @@ import com.likelion.backendplus4.yakplus.common.exception.error.ErrorCode;
  * 사용자 정의 예외의 추상 클래스 애플리케이션 전역에서 사용하는 공통 예외 상위 타입이다.
  *
  * @since 2025-04-16
+ * @modify 2025-04-16
  */
 public abstract class CustomException extends RuntimeException {
 

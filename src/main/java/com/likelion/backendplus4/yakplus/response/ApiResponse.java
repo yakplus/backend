@@ -14,6 +14,7 @@ import lombok.AccessLevel;
  * API 응답 포맷 클래스 정상 및 에러 응답을 통합된 형식으로 제공한다.
  *
  * @since 2025-04-16
+ * @modify 2025-04-18
  */
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,52 +30,40 @@ public class ApiResponse<T> {
     private T data;
 
     /**
-     * 정상 응답 생성 (데이터가 있거나 없을 때 사용)
+     * 정상 응답 생성 (데이터가 없는 경우)
      *
-     * @param <T>  데이터 타입
-     * @param data (선택) 응답 데이터
-     * @return 200 OK 응답
+     * @return 200 OK 응답 (body는 message만 포함)
      * @since 2025-04-17
      * @author 박찬병
-     * @modify 2025-04-17 박찬병
+     * @modify 2025-04-18 박찬병
      */
-    @SafeVarargs
-    public static <T> ResponseEntity<ApiResponse<T>> success(T... data) {
-        // 1) 가변 길이 인자에서 첫 번째 요소를 꺼냄
-        T responseData = (data != null && data.length > 0) ? data[0] : null;
-
-        // 2) ApiResponse 객체를 빌더로 생성
-        ApiResponse<T> body = ApiResponse.<T>builder()
-            .errorCode(null)                // 에러코드 없음
-            .message(SUCCESS_MESSAGE)       // "요청 성공"
-            .data(responseData)             // data가 있으면 첫 번째, 없으면 null
+    public static ResponseEntity<ApiResponse<Void>> success() {
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+            .errorCode(null)
+            .message(SUCCESS_MESSAGE)
+            .data(null)
             .build();
-
-        // 3) HTTP 200 OK + body를 함께 반환
         return ResponseEntity.ok(body);
     }
 
-
-
-    // // 1) 성공 (데이터 없음)
-    // public static ResponseEntity<ApiResponse<Void>> success() {
-    //     ApiResponse<Void> body = ApiResponse.<Void>builder()
-    //         .errorCode(null)
-    //         .message(SUCCESS_MESSAGE)
-    //         .data(null)
-    //         .build();
-    //     return ResponseEntity.ok(body);
-    // }
-    //
-    // // 2) 성공 (데이터 있음)
-    // public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
-    //     ApiResponse<T> body = ApiResponse.<T>builder()
-    //         .errorCode(null)
-    //         .message(SUCCESS_MESSAGE)
-    //         .data(data)
-    //         .build();
-    //     return ResponseEntity.ok(body);
-    // }
+    /**
+     * 정상 응답 생성 (데이터가 있는 경우)
+     *
+     * @param <T>   응답 데이터 타입
+     * @param data  응답 데이터
+     * @return 200 OK 응답 (body에 message와 data 포함)
+     * @since 2025-04-17
+     * @author 박찬병
+     * @modify 2025-04-18 박찬병
+     */
+    public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
+        ApiResponse<T> body = ApiResponse.<T>builder()
+            .errorCode(null)
+            .message(SUCCESS_MESSAGE)
+            .data(data)
+            .build();
+        return ResponseEntity.ok(body);
+    }
 
     /**
      * 에러 응답 생성
@@ -86,7 +75,7 @@ public class ApiResponse<T> {
      * @return 에러 응답 ResponseEntity
      * @since 2025-04-16
      * @author 정안식
-     * @modify 2025-04-16 박찬병
+     * @modify 2025-04-18 박찬병
      */
     public static <T> ResponseEntity<ApiResponse<T>> error(HttpStatus status, String errorCode, String message) {
         ApiResponse<T> body = ApiResponse.<T>builder()
