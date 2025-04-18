@@ -54,11 +54,11 @@ public class LoggerWithTraceId {
         if (stackTraceElements.length == 0) {
             throw new IllegalStateException("스택 트레이스가 비어 있습니다.");
         }
-        if (stackTraceElements.length < 4) {
+        if (stackTraceElements.length < 5) {
             throw new IllegalStateException("스택 트레이스가 예상보다 짧습니다.");
         }
 
-        String className = stackTraceElements[4].getClassName();
+        String className = stackTraceElements[6].getClassName();
         if (className.trim().isEmpty()) {
             return "UnknownClass";
         }
