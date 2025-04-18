@@ -23,16 +23,25 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /**
-     * 공통 에러 응답 빌더: 예외 로깅 및 ApiResponse.error 호출
-     * 	ex.getClass().getSimpleName() → 예외 클래스 이름
-     * 	ex.getMessage()
-     * 	ex -> 스텍 트레이서 호출용
+     * 공통 에러 응답 생성 메서드
+     *
+     * 예외 로깅 후 ApiResponse.error를 통해 표준화된 에러 응답을 생성한다.
+     *
+     * @param status     HTTP 상태 코드
+     * @param errorCode  에러 코드 문자열
+     * @param message    에러 메시지
+     * @param ex         발생한 예외 객체
+     * @return ResponseEntity<ApiResponse<Void>> 형태의 에러 응답
+     * @since 2025-04-18
+     * @author 박찬병
+     * @modify 2025-04-18 박찬병
      */
     private ResponseEntity<ApiResponse<Void>> buildErrorResponse(
         HttpStatus status, String errorCode, String message, Throwable ex) {
         log.error("{}: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
         return ApiResponse.error(status, errorCode, message);
     }
+
 
     /**
      * CustomException 처리 ErrorCode 인터페이스 기반으로 확장 가능한 방식으로 처리한다.
@@ -104,7 +113,7 @@ public class GlobalExceptionHandler {
      * @return 에러 응답
      * @since 2025-04-16
      * @author 박찬병
-     * @modify 2025-04-16 박찬병
+     * @modify 2025-04-17 박찬병
      */
     private static String getErrorMessage(BindException ex) {
         return ex.getBindingResult().getFieldErrors().stream()
