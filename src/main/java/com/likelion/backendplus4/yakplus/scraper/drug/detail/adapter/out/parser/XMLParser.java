@@ -20,19 +20,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class XMLParser {
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-
 	public static String toJson(String xml) {
+		// TODO: xml 태그 null 체크 해서 없는건 빈 객체 리턴
+		System.out.println("xml = " + xml);
+		if(xml == "null" || xml==null || xml.trim().isEmpty()) {
+			return "{\"\": \"\"}";
+		}
+
 		Document doc = parseXmlString(xml);
 		Element root = doc.getDocumentElement();
 
-		List<SectionTag>   allSections   = new ArrayList<>();
-		List<ArticleTag>   allArticles   = new ArrayList<>();
+		List<SectionTag> allSections = new ArrayList<>();
+		List<ArticleTag> allArticles = new ArrayList<>();
 		List<ParagraphTag> allParagraphs = new ArrayList<>();
 
-		Map<Element, SectionTag> sectionMap   = new HashMap<>();
-		Map<Element, ArticleTag> articleMap   = new HashMap<>();
+		Map<Element, SectionTag> sectionMap = new HashMap<>();
+		Map<Element, ArticleTag> articleMap = new HashMap<>();
 
 		DocTag docTag = new DocTag(root, allSections);
 		parseSesctions(root, allSections, sectionMap);
@@ -40,6 +43,9 @@ public class XMLParser {
 		parseParagraph(root, allParagraphs, articleMap);
 		return convertJson(docTag);
 	}
+	private static final ObjectMapper mapper = new ObjectMapper();
+
+	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
 	private static String convertJson(DocTag docTag) {
 		try {
@@ -118,6 +124,7 @@ public class XMLParser {
 			return documentBuilderFactory.newDocumentBuilder()
 				.parse(new InputSource(new StringReader(xml)));
 		} catch (SAXException e) {
+			// System.out.println(xml);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

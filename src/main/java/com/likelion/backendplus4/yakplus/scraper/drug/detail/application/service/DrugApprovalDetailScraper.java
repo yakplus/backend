@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+// import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.likelion.backendplus4.yakplus.scraper.drug.ApiResponseMapper;
 import com.likelion.backendplus4.yakplus.scraper.drug.detail.adapter.out.gov.ApiUriCompBuilder;
 import com.likelion.backendplus4.yakplus.scraper.drug.detail.adapter.out.parser.MaterialParser;
@@ -32,12 +32,12 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
     private final DrugDetailRepositoryPort drugDetailRepositoryPort;
 
 
+
     @Transactional
     @Override
     public void requestUpdateRawData(){
         log.info("API 데이터 요청");
-
-        String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(), String.class);
+        String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(2), String.class);
         log.debug("API Response: {}", response);
 
         JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
@@ -48,6 +48,42 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
         drugDetailRepositoryPort.saveAllAndFlush(drugs);
 	}
 
+    @Override
+    public void requestUpdateAllRawData() {
+        int totalCount= -1;
+        int pageNo = 1;
+        int savedCount = 0;
+
+		do {
+			String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(pageNo), String.class);
+			if (totalCount == -1) {
+				totalCount = ApiResponseMapper.getTotalCountFromResponse(response); // api 최초 호출 시 전체 데이터 개수 받아옴
+			}
+			JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
+			int itemCount = items.size();
+			log.info("item Count: "+ itemCount);
+			List<GovDrugDetailEntity> drugs = toListFromJson(items);
+			// for (GovDrugDetailEntity drug : drugs) {
+			// 	System.out.println(drug);
+			// }
+			drugDetailRepositoryPort.saveAllAndFlush(drugs);
+			pageNo++;
+			savedCount += itemCount;
+			log.info("Saved Count: "+ savedCount);
+		} while (savedCount < totalCount);
+
+        // log.info("api 호출 하여 개수 요청");
+        // String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(), String.class);
+        // log.debug("API Response: {}", response);
+        // // TODO: 데이터 사이즈 가져와서 반복문
+        // JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
+        // List<GovDrugDetailEntity> drugs = toListFromJson(items);
+        // for (GovDrugDetailEntity drug : drugs) {
+        //     System.out.println(drug);
+        // }
+        // drugDetailRepositoryPort.saveAllAndFlush(drugs);
+    }
+
     private List<GovDrugDetailEntity> toListFromJson(JsonNode items) {
 
         log.info("items 약품 객체로 맵핑");
@@ -57,6 +93,8 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
             for (int i = 0; i < apiDataDrugDetails.size(); i++) {
                 GovDrugDetailEntity drugDetail = apiDataDrugDetails.get(i);
                 JsonNode item = items.get(i);
+				// TODO: item id 로깅 필요
+				log.info("item seq: "+ item.get("ITEM_SEQ").asText());
 
                 String materialRawData = item.get("MATERIAL_NAME").asText();
                 String materialInfo = MaterialParser.parseMaterial(materialRawData);
@@ -90,14 +128,14 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
         }
     }
 
-    private JsonNode toJsonFromXml(String usageXmlText) throws JsonProcessingException {
-        XmlMapper xmlMapper = new XmlMapper();
-
-        JsonNode jsonNode = xmlMapper.readTree(usageXmlText)
-                                    .path("SECTION")
-                                    .path("ARTICLE");
-        return jsonNode;
-    }
+    // private JsonNode toJsonFromXml(String usageXmlText) throws JsonProcessingException {
+    //     XmlMapper xmlMapper = new XmlMapper();
+    //
+    //     JsonNode jsonNode = xmlMapper.readTree(usageXmlText)
+    //                                 .path("SECTION")
+    //                                 .path("ARTICLE");
+    //     return jsonNode;
+    // }
 
     // TODO: 추후 삭제 예정
     // private String replaceText(String text){
