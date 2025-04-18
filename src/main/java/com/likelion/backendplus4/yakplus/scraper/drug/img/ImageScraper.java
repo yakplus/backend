@@ -11,9 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelion.backendplus4.yakplus.scraper.drug.ApiResponseMapper;
-import com.likelion.backendplus4.yakplus.scraper.drug.ApiUriCompBuilder;
-import com.likelion.backendplus4.yakplus.scraper.drug.detail.GovDrugDetail;
-import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApiDataDrugRepo;
+import com.likelion.backendplus4.yakplus.scraper.drug.detail.adapter.out.gov.ApiUriCompBuilder;
+import com.likelion.backendplus4.yakplus.scraper.drug.detail.adapter.out.persistence.GovDrugDetailEntity;
+import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApiDataDrugJPARepo;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class ImageScraper {
 	private final ApiDataDrugImgRepo imgRepo;
 	private final ObjectMapper objectMapper;
 	//TODO: 추후 삭제
-	private final ApiDataDrugRepo detailRepo;
+	private final ApiDataDrugJPARepo detailRepo;
 
 	@Transactional
 	public void getApiData(){
@@ -40,10 +40,10 @@ public class ImageScraper {
 
 
 		//100번 반복
-		List<GovDrugDetail> oldDatas = detailRepo.findAll();
+		List<GovDrugDetailEntity> oldDatas = detailRepo.findAll();
 		List<ApiDataDrugImg> imgDatas = new ArrayList<>();
 
-		for (GovDrugDetail oldData : oldDatas) {
+		for (GovDrugDetailEntity oldData : oldDatas) {
 			System.out.println("oldData = " + oldData.getDrugId());
 			URI uri = uriCompBuilder.getUriForImgApiBySeq(oldData.getDrugId().toString());
 			String response = restTemplate.getForObject(uri, String.class);
