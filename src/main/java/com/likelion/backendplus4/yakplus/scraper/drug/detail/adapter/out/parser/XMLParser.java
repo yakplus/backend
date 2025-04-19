@@ -21,9 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class XMLParser {
 	public static String toJson(String xml) {
-		// TODO: xml 태그 null 체크 해서 없는건 빈 객체 리턴
-		System.out.println("xml = " + xml);
-		if(xml == "null" || xml==null || xml.trim().isEmpty()) {
+
+		if(isXmlNull(xml)) {
 			return "{\"\": \"\"}";
 		}
 
@@ -131,6 +130,14 @@ public class XMLParser {
 		} catch (ParserConfigurationException e) {
 			//TODO DocumentBulider 생성 실패
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static boolean isXmlNull(String xml) {
+		if (xml == null || xml.trim().isEmpty() || xml == "null") {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
