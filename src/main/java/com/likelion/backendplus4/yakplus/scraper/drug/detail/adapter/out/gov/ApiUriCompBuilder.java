@@ -44,7 +44,7 @@ public class ApiUriCompBuilder {
      * @since 2025-04-15
      * @author 함예정
      */
-    private URI getUri(String path) {
+    private URI getUri(String path, int pageNo) {
         return UriComponentsBuilder.newInstance()
             .scheme("https")
             .host(HOST)
@@ -52,6 +52,7 @@ public class ApiUriCompBuilder {
             .path(path)
             .queryParam("serviceKey", SERVICE_KEY)
             .queryParam("type", RESPONSE_TYPE)
+            .queryParam("pageNo", pageNo)
             .queryParam("numOfRows", 100)
             .build(true)
             .toUri();
@@ -64,8 +65,8 @@ public class ApiUriCompBuilder {
      * @since 2025-04-15
      * @author 함예정
      */
-    public URI getUriForDetailApi() {
-        return getUri(API_DETAIL_PATH);
+    public URI getUriForDetailApi(int pageNo) {
+        return getUri(API_DETAIL_PATH, pageNo);
     }
 
     /***
@@ -75,8 +76,8 @@ public class ApiUriCompBuilder {
      * @since 2025-04-15
      * @author 함예정
      */
-    public URI getUriForImgApi() {
-        return getUri(API_IMG_PATH);
+    public URI getUriForImgApi(int pageNo) {
+        return getUri(API_IMG_PATH, pageNo);
     }
 
     // TODO 추후 삭제

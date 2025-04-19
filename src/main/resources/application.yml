@@ -13,7 +13,7 @@ spring:
     hibernate:
       ddl-auto: create
     #      ddl-auto: create
-    show-sql: true
+#    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -23,6 +23,7 @@ spring:
 gov:
   host: apis.data.go.kr
   serviceKey: ${GOV_SERVICE_KEY}
+  numOfRows: 100
   type: json
   path:
     detail: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnDtlInq05

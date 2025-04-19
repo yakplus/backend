@@ -31,7 +31,7 @@ public class GovDrugDetailEntity {
 	private Long drugId;
 
 	@JsonProperty("ITEM_NAME")
-	@Column( name= "ITEM_NAME")
+	@Column( name= "ITEM_NAME", columnDefinition = "TEXT")
 	private String drugName;
 
 	@JsonProperty("ENTP_NAME")
@@ -50,7 +50,7 @@ public class GovDrugDetailEntity {
 	private String materialInfo;
 
 	@JsonProperty("STORAGE_METHOD")
-	@Column(name = "STORAGE_METHOD")
+	@Column(name = "STORAGE_METHOD", columnDefinition = "TEXT")
 	private String storeMethod;
 
 	@JsonProperty("VALID_TERM")
