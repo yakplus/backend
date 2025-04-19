@@ -48,40 +48,38 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
         drugDetailRepositoryPort.saveAllAndFlush(drugs);
 	}
 
-    @Override
+	@Transactional
+	@Override
     public void requestUpdateAllRawData() {
-        int totalCount= -1;
+         int totalCount= -1;
+//		int totalCount= 18;
         int pageNo = 1;
         int savedCount = 0;
 
 		do {
 			String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(pageNo), String.class);
-			if (totalCount == -1) {
+			if (totalCount == -1) { // 전체 데이터 개수를 api로 부터 받아옴
 				totalCount = ApiResponseMapper.getTotalCountFromResponse(response); // api 최초 호출 시 전체 데이터 개수 받아옴
 			}
 			JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
+			List<GovDrugDetailEntity> drugs = toListFromJson(items);
 			int itemCount = items.size();
 			log.info("item Count: "+ itemCount);
-			List<GovDrugDetailEntity> drugs = toListFromJson(items);
+			log.info("druglist length: " + drugs.size());
 			// for (GovDrugDetailEntity drug : drugs) {
 			// 	System.out.println(drug);
 			// }
 			drugDetailRepositoryPort.saveAllAndFlush(drugs);
 			pageNo++;
-			savedCount += itemCount;
+			savedCount += drugs.size();
 			log.info("Saved Count: "+ savedCount);
-		} while (savedCount < totalCount);
+//			try {
+//				Thread.sleep(2_000);
+//			} catch (InterruptedException e) {
+//				throw new RuntimeException(e);
+//			}
+		} while (savedCount < totalCount); // 저장된 데이터 개수가 전체 데이터 개수보다 작으면 반복문 실행
 
-        // log.info("api 호출 하여 개수 요청");
-        // String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(), String.class);
-        // log.debug("API Response: {}", response);
-        // // TODO: 데이터 사이즈 가져와서 반복문
-        // JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
-        // List<GovDrugDetailEntity> drugs = toListFromJson(items);
-        // for (GovDrugDetailEntity drug : drugs) {
-        //     System.out.println(drug);
-        // }
-        // drugDetailRepositoryPort.saveAllAndFlush(drugs);
     }
 
     private List<GovDrugDetailEntity> toListFromJson(JsonNode items) {
@@ -89,7 +87,6 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
         log.info("items 약품 객체로 맵핑");
         try {
             List<GovDrugDetailEntity> apiDataDrugDetails = toApiDetails(items);
-
             for (int i = 0; i < apiDataDrugDetails.size(); i++) {
                 GovDrugDetailEntity drugDetail = apiDataDrugDetails.get(i);
                 JsonNode item = items.get(i);
@@ -112,7 +109,6 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
                 String precautions = XMLParser.toJson(precautionxmlText);
                 drugDetail.changePrecaution(precautions);
             }
-
             return apiDataDrugDetails;
         } catch (Exception e) {
 			throw new RuntimeException(e);
