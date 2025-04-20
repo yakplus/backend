@@ -2,4 +2,6 @@ package com.likelion.backendplus4.yakplus.scraper.drug.detail.application.port.i
 
 public interface DrugApprovalDetailScraperUseCase {
 	void requestUpdateRawData();
+
+	void requestUpdateAllRawData();
 }

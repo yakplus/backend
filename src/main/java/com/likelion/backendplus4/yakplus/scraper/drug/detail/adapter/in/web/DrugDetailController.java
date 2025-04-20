@@ -18,4 +18,10 @@ public class DrugDetailController {
 		scraperUseCase.requestUpdateRawData();
 		return ResponseEntity.ok().build();
 	}
+
+	@GetMapping("/gov/api/parser/detail/startAll")
+	public ResponseEntity saveAPIDataAll(){
+		scraperUseCase.requestUpdateAllRawData();
+		return ResponseEntity.ok().build();
+	}
 }

@@ -20,19 +20,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class XMLParser {
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-
 	public static String toJson(String xml) {
+
+		if(isXmlNull(xml)) {
+			return "{\"\": \"\"}";
+		}
+
 		Document doc = parseXmlString(xml);
 		Element root = doc.getDocumentElement();
 
-		List<SectionTag>   allSections   = new ArrayList<>();
-		List<ArticleTag>   allArticles   = new ArrayList<>();
+		List<SectionTag> allSections = new ArrayList<>();
+		List<ArticleTag> allArticles = new ArrayList<>();
 		List<ParagraphTag> allParagraphs = new ArrayList<>();
 
-		Map<Element, SectionTag> sectionMap   = new HashMap<>();
-		Map<Element, ArticleTag> articleMap   = new HashMap<>();
+		Map<Element, SectionTag> sectionMap = new HashMap<>();
+		Map<Element, ArticleTag> articleMap = new HashMap<>();
 
 		DocTag docTag = new DocTag(root, allSections);
 		parseSesctions(root, allSections, sectionMap);
@@ -40,6 +42,9 @@ public class XMLParser {
 		parseParagraph(root, allParagraphs, articleMap);
 		return convertJson(docTag);
 	}
+	private static final ObjectMapper mapper = new ObjectMapper();
+
+	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
 	private static String convertJson(DocTag docTag) {
 		try {
@@ -118,12 +123,21 @@ public class XMLParser {
 			return documentBuilderFactory.newDocumentBuilder()
 				.parse(new InputSource(new StringReader(xml)));
 		} catch (SAXException e) {
+			// System.out.println(xml);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (ParserConfigurationException e) {
 			//TODO DocumentBulider 생성 실패
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static boolean isXmlNull(String xml) {
+		if (xml == null || xml.trim().isEmpty() || xml == "null") {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
