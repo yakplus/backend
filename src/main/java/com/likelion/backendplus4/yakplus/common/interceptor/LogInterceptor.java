@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.yakplus.common.interceptor;
 
+import com.likelion.backendplus4.yakplus.common.util.log.LogMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
@@ -8,7 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
+import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 
 /**
  * 로깅을 위한 인터셉터 클래스
@@ -18,8 +19,6 @@ import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
  */
 @Component
 public class LogInterceptor implements HandlerInterceptor {
-
-    private static final String TRACE_ID = "traceId";
 
     /**
      * 요청 처리 전에 실행되는 메서드
@@ -79,7 +78,7 @@ public class LogInterceptor implements HandlerInterceptor {
      * @since 2025-04-16
      */
     private void setTraceId(String traceId) {
-        MDC.put(TRACE_ID, traceId);
+        MDC.put(LogMessage.TRACE_ID.getMessage(), traceId);
     }
 
     /**

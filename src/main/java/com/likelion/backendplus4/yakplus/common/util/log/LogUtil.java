@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.common.util;
+package com.likelion.backendplus4.yakplus.common.util.log;
 
 /**
  * 로깅 유틸리티 클래스

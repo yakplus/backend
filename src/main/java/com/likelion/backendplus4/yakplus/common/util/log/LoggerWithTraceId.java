@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.common.util;
+package com.likelion.backendplus4.yakplus.common.util.log;
 
 import lombok.Getter;
 import org.slf4j.Logger;

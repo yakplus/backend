@@ -1,9 +1,10 @@
 package com.likelion.backendplus4.yakplus.logtest;
 
-import com.likelion.backendplus4.yakplus.common.util.LogLevel;
+import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
+import com.likelion.backendplus4.yakplus.common.util.log.LogMessage;
 import org.springframework.stereotype.Service;
 
-import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
+import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 
 /**
  * 데이터 처리를 위한 서비스 클래스
@@ -14,10 +15,6 @@ import static com.likelion.backendplus4.yakplus.common.util.LogUtil.log;
 @Service
 public class MyService {
 
-    private static final String DATA_PROCESSING_START = "Service: 데이터 처리를 시작합니다";
-    private static final String DATA_PROCESSING_SUCCESS = "Service: 데이터 처리가 완료되었습니다";
-    private static final String DATA_PROCESSING_ERROR = "Service: 데이터 처리 중 오류가 발생했습니다";
-    private static final String PROCESSED_DATA_RESULT = "처리된 데이터";
     private static final long PROCESSING_DELAY = 1000L;
 
     /**
@@ -30,16 +27,16 @@ public class MyService {
      * @since 2025-04-16
      */
     public String processData() {
-        log(LogLevel.INFO, DATA_PROCESSING_START);
+        log(LogLevel.INFO, LogMessage.SERVICE_DATA_PROCESSING_START.getMessage());
 
         try {
             simulateProcessing();
-            log(LogLevel.INFO, DATA_PROCESSING_SUCCESS);
-            return PROCESSED_DATA_RESULT;
+            log(LogLevel.INFO, LogMessage.SERVICE_DATA_PROCESSING_SUCCESS.getMessage());
+            return LogMessage.PROCESSED_DATA_RESULT.getMessage();
         } catch (InterruptedException e) {
-            log(LogLevel.ERROR, DATA_PROCESSING_ERROR, e);
+            log(LogLevel.ERROR, LogMessage.SERVICE_DATA_PROCESSING_ERROR.getMessage(), e);
             Thread.currentThread().interrupt();
-            throw new RuntimeException(DATA_PROCESSING_ERROR, e);
+            throw new RuntimeException(LogMessage.SERVICE_DATA_PROCESSING_ERROR.getMessage(), e);
         }
     }
 
