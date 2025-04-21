@@ -37,7 +37,7 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
 	@Override
 	public void requestUpdateRawData() {
 		log.info("API 데이터 요청");
-		String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(2), String.class);
+		String response = restTemplate.getForObject(apiUriCompBuilder.getUriForDetailApi(1), String.class);
 		log.debug("API Response: {}", response);
 
 		JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
@@ -48,7 +48,7 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
 		drugDetailRepositoryPort.saveAllAndFlush(drugs);
 	}
 
-	@Transactional
+
 	@Override
 	public void requestUpdateAllRawData() {
 		int pageNo = 1;

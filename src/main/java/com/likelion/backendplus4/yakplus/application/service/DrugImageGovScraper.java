@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelion.backendplus4.yakplus.support.api.ApiResponseMapper;
 import com.likelion.backendplus4.yakplus.support.api.ApiUriCompBuilder;
-import com.likelion.backendplus4.yakplus.scraper.drug.detail.ApiDataDrugJPARepo;
 import com.likelion.backendplus4.yakplus.infrastructure.adapter.persistence.repository.ApiDataDrugImgRepo;
 import com.likelion.backendplus4.yakplus.infrastructure.adapter.persistence.repository.entity.ApiDataDrugImgEntity;
 
@@ -23,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DrungImageGovScraper {
+public class DrugImageGovScraper {
 	private final ApiUriCompBuilder uriCompBuilder;
 	private final RestTemplate restTemplate;
 	private final ApiDataDrugImgRepo imgRepo;
@@ -33,7 +32,7 @@ public class DrungImageGovScraper {
 	public void getApiData(){
 		log.info("의약품 개요 정보 API 호출 시작");
 
-		URI uriForImgApi = uriCompBuilder.getUriForImgApi();
+		URI uriForImgApi = uriCompBuilder.getUriForImgApi(1);
 
 		String response = restTemplate.getForObject(uriForImgApi, String.class);
 		JsonNode items = ApiResponseMapper.getItemsFromResponse(response);

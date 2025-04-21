@@ -9,6 +9,7 @@ import com.likelion.backendplus4.yakplus.infrastructure.adapter.persistence.repo
 import com.likelion.backendplus4.yakplus.infrastructure.adapter.persistence.repository.GovDrungDetailJpaRepository;
 import com.likelion.backendplus4.yakplus.domain.model.GovDrugDetail;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -22,6 +23,7 @@ public class GovDrugDetailRepositoryAdapter implements DrugDetailRepositoryPort 
 	}
 
 	@Override
+	@Transactional
 	public void saveAllAndFlush(List<GovDrugDetailEntity> entities) {
 		govDrungDetailJpaRepository.saveAllAndFlush(entities);
 	}
