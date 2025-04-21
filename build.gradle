@@ -44,11 +44,20 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.10'
 
+    //ai
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M5'
+
     // build.gradle
     if (project.hasProperty('env') && project.env == 'test') {
         dependencies {
             implementation 'org.springframework.boot:spring-boot-starter-actuator'
         }
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0-M5"
     }
 }
 
