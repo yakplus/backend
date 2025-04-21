@@ -37,5 +37,4 @@ public class ApiResponseMapper {
 			throw new RuntimeException(e);
 		}
 	}
-
 }
