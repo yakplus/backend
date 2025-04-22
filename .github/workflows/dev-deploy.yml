@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '.github/workflows/**'
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build Spring Boot (JAR)
+      run: ./gradlew bootJar -Penv=test
+
+    - name: Copy JAR to shared volume
+      run: cp build/libs/*.jar /deploy/app.jar
+
+    - name: Restart Docker with New JAR
+      run: |
+        cd /deploy
+        docker-compose down
+        docker-compose up -d --build
+
+    - name: Wait for test server to be healthy
+      run: |
+        echo "🔍 Checking https://yakplus-test.techlog.dev/actuator/health ..."
+        curl --silent --fail \
+             --retry 5 --retry-connrefused --retry-delay 5 \
+             https://yakplus-test.techlog.dev/actuator/health
