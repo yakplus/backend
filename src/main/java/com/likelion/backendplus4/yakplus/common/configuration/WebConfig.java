@@ -19,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private static final String ALL_PATTERN = "/**";
 
-    private LogInterceptor logInterceptor;
+    private final LogInterceptor logInterceptor;
 
     /**
      * 인터셉터를 등록하는 메서드
