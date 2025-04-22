@@ -1,23 +1,17 @@
-package com.likelion.backendplus4.yakplus.els.core;
+package com.likelion.backendplus4.yakplus.search.infrastructure.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "gov_drug_raw_data")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class GovDrugRawData {
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class GovDrugRawDataEntity {
     @Id
     private Long itemSeq;
     private Boolean etcOtcCode;
-    private java.time.LocalDate itemPermitDate;
+    private LocalDate itemPermitDate;
     @Column(columnDefinition = "json")
     private String eeDocData;
     private String entpName;

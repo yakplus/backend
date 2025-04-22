@@ -1,18 +1,18 @@
-package com.likelion.backendplus4.yakplus.els.core;
-import org.springframework.ai.openai.api.OpenAiApi;
+package com.likelion.backendplus4.yakplus.search.config;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.ai.openai.api.OpenAiApi;
 
 @Configuration
-public class OpenaiConfig {
+public class OpenAiConfig {
 
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
+
     @Bean
     public OpenAiApi openaiApi() {
-        OpenAiApi openaiApiKey = new OpenAiApi(apiKey);
-        return openaiApiKey;
+        return new OpenAiApi(apiKey);
     }
 }
-
