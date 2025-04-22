@@ -4,4 +4,6 @@ public interface DrugApprovalDetailScraperUseCase {
 	void requestUpdateRawData();
 
 	void requestUpdateAllRawData();
+
+	void requestUpdateAllRawDataByJdbc();
 }

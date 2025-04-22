@@ -3,6 +3,7 @@ package com.likelion.backendplus4.yakplus.presentation.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.likelion.backendplus4.yakplus.application.port.in.DrugApprovalDetailScraperUseCase;
 
@@ -22,6 +23,12 @@ public class DrugDetailController {
 	@GetMapping("/gov/api/parser/detail/startAll")
 	public ResponseEntity saveAPIDataAll(){
 		scraperUseCase.requestUpdateAllRawData();
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/gov/api/parser/detail/startAll")
+	public ResponseEntity saveAPIDataAllByJdbc(){
+		scraperUseCase.requestUpdateAllRawDataByJdbc();
 		return ResponseEntity.ok().build();
 	}
 }

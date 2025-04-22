@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class GovDrugDetail {
 	private Long drugId;
 	private String drugName;

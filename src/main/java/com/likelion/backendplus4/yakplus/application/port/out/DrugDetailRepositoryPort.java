@@ -8,4 +8,6 @@ public interface DrugDetailRepositoryPort {
 
 	List<GovDrugDetailEntity> findAll(String code);
 	void saveAllAndFlush(List<GovDrugDetailEntity> entities);
+
+	void saveAllByJdbc(List<GovDrugDetailEntity> entities);
 }

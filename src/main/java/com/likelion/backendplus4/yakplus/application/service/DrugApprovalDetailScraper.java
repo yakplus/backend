@@ -77,6 +77,33 @@ public class DrugApprovalDetailScraper implements DrugApprovalDetailScraperUseCa
 
 	}
 
+	@Override
+	public void requestUpdateAllRawDataByJdbc() {
+		int pageNo = 1;
+		int receivedCount = 0;
+		int savedCountWithoutDuplicates = 0;
+
+		String response = fetchPage(pageNo);
+		int totalCount = ApiResponseMapper.getTotalCountFromResponse(response);
+
+		while (hasMoreData(receivedCount, totalCount)) {
+			JsonNode items = ApiResponseMapper.getItemsFromResponse(response);
+			List<GovDrugDetailEntity> drugs = toListFromJson(items);
+			receivedCount += drugs.size();
+
+			// item_seq 기준 중복 제거된 약품 개수 유지 (실제 db에 저장된 데이터와 같은 지 비교용)
+			int uniqueItems = deduplicateByItemSeq(drugs);
+			savedCountWithoutDuplicates += uniqueItems;
+
+			drugDetailRepositoryPort.saveAllByJdbc(drugs);
+
+			log.info("Page {}, received: {}, saved (unique): {}, totalReceived: {}, totalUniqueSaved: {}",
+				pageNo, drugs.size(), uniqueItems, receivedCount, savedCountWithoutDuplicates);
+
+			response = fetchPage(++pageNo);
+		}
+	}
+
 	private List<GovDrugDetailEntity> toListFromJson(JsonNode items) {
 
 		log.info("items 약품 객체로 맵핑");
