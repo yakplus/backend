@@ -6,8 +6,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
-import com.likelion.backendplus4.yakplus.scraper.drug.ApiResponseMapper;
-
 /***
  * API 요청 URI 객체 생성 빌더
  *
@@ -26,12 +24,14 @@ public class ApiUriCompBuilder {
     private final String RESPONSE_TYPE;
     private final int NUM_OF_ROWS;
 
+
     public ApiUriCompBuilder(@Value("${gov.host}") String host,
                             @Value("${gov.serviceKey}") String serviceKey,
                             @Value("${gov.path.detail}") String pathDetail,
                             @Value("${gov.path.img}") String pathImg,
                             @Value("${gov.type}") String type,
-                            @Value("${gov.numOfRows}") int numOfRows) {
+                            @Value("${gov.numOfRows}") int numOfRows
+                            @Value("${gov.type}") String type) {
         this.HOST = host;
         this.SERVICE_KEY = serviceKey;
         this.API_DETAIL_PATH = pathDetail;
@@ -101,10 +101,4 @@ public class ApiUriCompBuilder {
             .toUri();
 
     }
-
-    public int getTotalPageFromResponse(String response) {
-        int totalCount = ApiResponseMapper.getTotalCountFromResponse(response);
-        return totalCount/NUM_OF_ROWS + 1;
-    }
-
 }
