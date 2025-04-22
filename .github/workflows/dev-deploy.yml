@@ -35,3 +35,10 @@ jobs:
         cd /deploy
         docker-compose down
         docker-compose up -d --build
+
+    - name: Wait for test server to be healthy
+      run: |
+        echo "🔍 Checking https://yakplus-test.techlog.dev/actuator/health ..."
+        curl --silent --fail \
+             --retry 5 --retry-connrefused --retry-delay 5 \
+             https://yakplus-test.techlog.dev/actuator/health
