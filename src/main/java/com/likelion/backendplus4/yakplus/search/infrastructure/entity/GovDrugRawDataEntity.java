@@ -1,12 +1,20 @@
 package com.likelion.backendplus4.yakplus.search.infrastructure.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
+
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "gov_drug_raw_data")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Table(name = "gov_drug_detail")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class GovDrugRawDataEntity {
     @Id
     private Long itemSeq;
@@ -24,5 +32,5 @@ public class GovDrugRawDataEntity {
     @Column(columnDefinition = "json")
     private String udDocData;
     private String validTerm;
-    private String imgUrl;
+//    private String imgUrl;
 }

@@ -1,32 +1,119 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
-import com.likelion.backendplus4.yakplus.search.application.port.in.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
+import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
+import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * 사용자 검색 요청을 처리하고, 벡터 유사도 및 텍스트 검색을 통해
+ * 결과를 반환하는 서비스 구현체
+ *
+ * @since 2025-04-22
+ * @modified 2025-04-24
+ */
 @Service
 @RequiredArgsConstructor
 public class DrugSearcher implements SearchDrugUseCase {
     private final DrugSearchRepositoryPort drugSearchRepositoryPort;
     private final EmbeddingPort embeddingPort;
 
+    /**
+     * 검색어 유효성 검사, 임베딩 생성, ES 검색 수행 후
+     * 리스트로 매핑하여 반환한다.
+     *
+     * @param request 검색어 및 페이지 정보
+     * @return 검색 결과 DTO 리스트
+     * @throws SearchException 검색어가 유효하지 않은 경우 발생
+     * @author 정안식
+     * @since 2025-04-22
+     * @modified 2025-04-24
+     */
     @Override
-    public List<Drug> search(SearchRequest searchRequest) {
-        float[] embeddings = generateEmbeddings(searchRequest.query());
-        return searchDrugs(searchRequest, embeddings);
+    public List<SearchResponse> search(SearchRequest request) {
+        validateQuery(request.query());
+        float[] embeddings = generateEmbeddings(request.query());
+        return searchDrugs(request, embeddings);
     }
 
+    /**
+     * 검색어가 null이거나 빈 문자열인지 검사하고,
+     * 유효하지 않으면 SearchException을 던진다.
+     *
+     * @param query 검색어 문자열
+     * @throws SearchException INVALID_QUERY 코드와 함께 발생
+     * @author 정안식
+     * @since 2025-04-22
+     * @modified 2025-04-24
+     */
+    private void validateQuery(String query) {
+        if (query == null || query.isEmpty()) {
+            //TODO: LOG WARN 처리 요망
+//            log(LogLevel.warn, "검색 쿼리가 비어있거나 null입니다.");
+            throw new SearchException(SearchErrorCode.INVALID_QUERY);
+        }
+    }
+
+    /**
+     * OpenAI API를 통해 검색어의 임베딩 벡터를 생성한다.
+     *
+     * @param query 검색어 문자열
+     * @return 임베딩 벡터 배열
+     * @author 정안식
+     * @since 2025-04-22
+     * @modified 2025-04-24
+     */
     private float[] generateEmbeddings(String query) {
         return embeddingPort.getEmbedding(query);
     }
 
-    private List<Drug> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
-        return drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
+    /**
+     * 생성된 임베딩 벡터와 검색 요청 정보를 이용해 Elasticsearch에서 조회를 수행하고,
+     * 도메인 모델 리스트를 SearchResponse DTO 리스트로 변환해 반환한다.
+     *
+     * @param searchRequest 검색어 및 페이지/사이즈 정보가 담긴 DTO
+     * @param embeddings    검색어에 대한 임베딩 벡터 배열
+     * @return SearchResponse 객체 리스트
+     * @author 정안식
+     * @since 2025-04-22
+     * @modified 2025-04-24
+     */
+    private List<SearchResponse> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
+        List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
+        System.out.println("Service Logic Complete : Before Return to Controller");
+        drugs.stream()
+                .map(Drug::getItemName)
+                .forEach(System.out::println);
+        return mapToDrugDomain(drugs);
+    }
+
+    /**
+     * 도메인 모델 객체 리스트를 받아서, 각 객체의 필드를 추출한 후
+     * SearchResponse DTO로 매핑하여 리스트로 반환한다.
+     *
+     * @param drugs 도메인 모델 Drug 객체 리스트
+     * @return SearchResponse DTO 리스트
+     * @author 정안식
+     * @since 2025-04-22
+     * @modified 2025-04-24
+     */
+    private List<SearchResponse> mapToDrugDomain(List<Drug> drugs) {
+        return drugs.stream()
+                .map(d -> new SearchResponse(
+                        d.getItemSeq(),
+                        d.getItemName(),
+                        d.getEntpName(),
+                        d.getEeText()
+                ))
+                .collect(Collectors.toList());
     }
 }

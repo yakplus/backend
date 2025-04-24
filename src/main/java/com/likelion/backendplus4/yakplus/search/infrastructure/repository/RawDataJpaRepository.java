@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GovDrugRawDataRepository extends JpaRepository<GovDrugRawDataEntity, Long> {
+public interface RawDataJpaRepository extends JpaRepository<GovDrugRawDataEntity, Long> {
     List<GovDrugRawDataEntity> findByItemSeqGreaterThanOrderByItemSeqAsc(Long lastSeq, Pageable pageable);
 }
