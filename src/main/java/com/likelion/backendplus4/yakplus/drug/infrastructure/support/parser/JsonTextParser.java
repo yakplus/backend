@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.temp.util;
+package com.likelion.backendplus4.yakplus.drug.infrastructure.support.parser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonTextExtractor {
+public class JsonTextParser {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 

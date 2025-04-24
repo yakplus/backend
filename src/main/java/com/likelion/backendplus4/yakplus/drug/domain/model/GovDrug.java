@@ -53,24 +53,24 @@ public class GovDrug {
 		return matrerials;
 	}
 
-	public List<String> getEfficacy() {
-		List<String> efficacys = new ArrayList<>();
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode json = objectMapper.readTree(this.efficacy);
-			for (JsonNode section : json.get("sections")) {
-				for (JsonNode article : section.get("articles")) {
-					for (JsonNode paragraph : article.get("paragraphs")) {
-						efficacys.add(paragraph.get("text").asText());
-					}
-				}
-			}
-		} catch (JsonProcessingException e) {
-			//TODO: 예외처리
-			throw new RuntimeException(e);
-		}
-		return efficacys;
-	}
+	// public List<String> getEfficacy() {
+	// 	List<String> efficacys = new ArrayList<>();
+	// 	try {
+	// 		ObjectMapper objectMapper = new ObjectMapper();
+	// 		JsonNode json = objectMapper.readTree(this.efficacy);
+	// 		for (JsonNode section : json.get("sections")) {
+	// 			for (JsonNode article : section.get("articles")) {
+	// 				for (JsonNode paragraph : article.get("paragraphs")) {
+	// 					efficacys.add(paragraph.get("text").asText());
+	// 				}
+	// 			}
+	// 		}
+	// 	} catch (JsonProcessingException e) {
+	// 		//TODO: 예외처리
+	// 		throw new RuntimeException(e);
+	// 	}
+	// 	return efficacys;
+	// }
 
 	public Map<WarningType, List<String>> getPrecaution() {
 		ObjectMapper objectMapper = new ObjectMapper();
