@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
+import com.likelion.backendplus4.yakplus.search.application.port.in.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
@@ -16,16 +17,16 @@ public class DrugSearcher implements SearchDrugUseCase {
     private final EmbeddingPort embeddingPort;
 
     @Override
-    public List<Drug> search(String query, int page, int size) {
-        float[] embeddings = generateEmbeddings(query);
-        return searchDrugs(query, embeddings, page, size);
+    public List<Drug> search(SearchRequest searchRequest) {
+        float[] embeddings = generateEmbeddings(searchRequest.query());
+        return searchDrugs(searchRequest, embeddings);
     }
 
     private float[] generateEmbeddings(String query) {
         return embeddingPort.getEmbedding(query);
     }
 
-    private List<Drug> searchDrugs(String query, float[] embeddings, int page, int size) {
-        return drugSearchRepositoryPort.searchBySymptoms(query, embeddings, size, page * size);
+    private List<Drug> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
+        return drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
     }
 }

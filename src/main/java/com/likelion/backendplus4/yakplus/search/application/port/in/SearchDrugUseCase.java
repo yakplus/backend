@@ -4,5 +4,5 @@ import java.util.List;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 
 public interface SearchDrugUseCase {
-    List<Drug> search(String query, int page, int size);
+    List<Drug> search(SearchRequest searchRequest);
 }

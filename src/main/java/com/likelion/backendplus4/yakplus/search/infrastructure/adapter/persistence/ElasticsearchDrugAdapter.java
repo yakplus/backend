@@ -72,8 +72,8 @@ public class ElasticsearchDrugAdapter implements DrugIndexRepositoryPort, DrugSe
             String esQuery = buildSearchQuery(query, vector, size, from);
             Response response = executeSearch(esQuery);
             return parseSearchResults(response);
-        } catch (Exception ex) {
-            throw new RuntimeException("ES 검색 실패", ex);
+        } catch (Exception e) {
+            throw new RuntimeException("ES 검색 실패", e);
         }
     }
 
