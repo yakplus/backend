@@ -54,6 +54,15 @@ public class SymptomMapper {
 			.build();
 	}
 
+	/**
+	 * ES 색인용 Document를 도메인 모델(DrugSymptom)로 변환합니다.
+	 *
+	 * @param symptomDocument 변환 대상 ES Document 객체
+	 * @return DrugSymptom 도메인 모델 객체
+	 * @author 박찬병
+	 * @since 2025-04-25
+	 * @modified 2025-04-25
+	 */
 	public static DrugSymptom toDomain(DrugSymptomDocument symptomDocument) {
 		return DrugSymptom.builder()
 			.drugId(symptomDocument.getDrugId())
@@ -62,6 +71,16 @@ public class SymptomMapper {
 			.build();
 	}
 
+
+	/**
+	 * 도메인 모델(DrugSymptom)을 HTTP 응답용 DTO(DrugSymptomResponse)로 변환합니다.
+	 *
+	 * @param drugSymptom 변환 대상 도메인 객체
+	 * @return DrugSymptomResponse 응답 DTO 객체
+	 * @author 박찬병
+	 * @since 2025-04-25
+	 * @modified 2025-04-25
+	 */
 	public static DrugSymptomResponse toResponse(DrugSymptom drugSymptom) {
 		return DrugSymptomResponse.builder()
 			.drugId(drugSymptom.getDrugId())
