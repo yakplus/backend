@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum EsErrorCode implements ErrorCode {
-	ES_SUGGEST_SEARCH_FAIL(400010, HttpStatus.INTERNAL_SERVER_ERROR, "검색어 자동완성에 실패했습니다.");
+	ES_SUGGEST_SEARCH_FAIL(440001, HttpStatus.INTERNAL_SERVER_ERROR, "검색어 자동완성에 실패했습니다."),
+	ES_SEARCH_FAIL(440002, HttpStatus.INTERNAL_SERVER_ERROR, "증상 검색에 실패했습니다.");
 
 	private final int codeNumber;
 	private final HttpStatus httpStatus;

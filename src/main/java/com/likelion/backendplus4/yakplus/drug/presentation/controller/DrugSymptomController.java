@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.likelion.backendplus4.yakplus.drug.application.service.DrugSymptomService;
+import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomList;
 import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomSearchListResponse;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 
@@ -54,6 +55,23 @@ public class DrugSymptomController {
 	public ResponseEntity<ApiResponse<DrugSymptomSearchListResponse>> autocomplete(@RequestParam String q) {
 		DrugSymptomSearchListResponse results = indexService.getSymptomAutoComplete(q);
 		return ApiResponse.success(results);
+	}
+
+	/**
+	 * 증상 키워드 검색으로 매칭되는 약품명 리스트를 반환합니다.
+	 *
+	 * @param q     검색어 프리픽스
+	 * @param page  조회할 페이지 번호 (기본값 0)
+	 * @param size  페이지 당 문서 수 (기본값 20)
+	 * @return 약품명 리스트를 담은 ApiResponse
+	 */
+	@GetMapping("/search/names")
+	public ResponseEntity<ApiResponse<DrugSymptomList>> searchNames(
+		@RequestParam String q,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "20") int size) {
+		DrugSymptomList drugSymptomList = indexService.searchDrugNamesBySymptom(q, page, size);
+		return ApiResponse.success(drugSymptomList);
 	}
 
 }

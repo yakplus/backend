@@ -3,21 +3,24 @@ package com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper;
 import java.io.IOException;
 import java.util.List;
 
+import com.likelion.backendplus4.yakplus.drug.domain.model.DrugSymptom;
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 import com.likelion.backendplus4.yakplus.drug.exception.ScraperException;
 import com.likelion.backendplus4.yakplus.drug.exception.error.ScraperErrorCode;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.parser.JsonTextParser;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.parser.SymptomTextParser;
+import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomResponse;
 
 /**
- * DB 엔티티를 Elasticsearch 색인용 Document로 변환하는 매퍼 클래스입니다.
+ * 증상 관련 Document를 다루는 매퍼 클래스입니다.
  *
  * @author 박찬병
  * @since 2025-04-25
  * @modified 2025-04-25
  */
-public class EntityDocMapper {
+public class SymptomMapper {
+
 	/**
 	 * 주어진 GovDrug 도메인 객체를 기반으로 ES 색인용 DrugSymptomDocument로 변환합니다.
 	 * 내부에서 JSON 파싱 및 전처리 로직을 실행하며, 파싱 실패 시 ScraperException을 던집니다.
@@ -48,6 +51,22 @@ public class EntityDocMapper {
 			.drugName(entity.getDrugName())
 			.symptom(flatText)
 			.symptomSuggester(suggestTokens)
+			.build();
+	}
+
+	public static DrugSymptom toDomain(DrugSymptomDocument symptomDocument) {
+		return DrugSymptom.builder()
+			.drugId(symptomDocument.getDrugId())
+			.drugName(symptomDocument.getDrugName())
+			.symptom(symptomDocument.getSymptom())
+			.build();
+	}
+
+	public static DrugSymptomResponse toResponse(DrugSymptom drugSymptom) {
+		return DrugSymptomResponse.builder()
+			.drugId(drugSymptom.getDrugId())
+			.drugName(drugSymptom.getDrugName())
+			.symptom(drugSymptom.getSymptom())
 			.build();
 	}
 }

@@ -10,7 +10,9 @@ import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptomEsAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.GovDrugJpaAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
-import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.EntityDocMapper;
+import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.SymptomMapper;
+import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomList;
+import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomResponse;
 import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomSearchListResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -49,7 +51,7 @@ public class DrugSymptomService {
 
 			// 2. 도메인 → ES Document 변환
 			List<DrugSymptomDocument> docs = drugPage.stream()
-				.map(EntityDocMapper::toDocument)  // 내부에서 예외 처리 됨
+				.map(SymptomMapper::toDocument)  // 내부에서 예외 처리 됨
 				.toList();
 
 			// 3. 청크별 ES에 색인
@@ -73,4 +75,23 @@ public class DrugSymptomService {
     public DrugSymptomSearchListResponse getSymptomAutoComplete(String q) {
         return new DrugSymptomSearchListResponse(symptomAdapter.getSearchAutoCompleteResponse(q));
     }
+
+	/**
+	 * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
+	 *
+	 * @param q     검색어 프리픽스
+	 * @param page  조회할 페이지 번호
+	 * @param size  페이지 당 문서 수
+	 * @return 중복 제거된 약품명 리스트
+	 * @since 2025-04-25
+	 * @modified 2025-04-25
+	 */
+	public DrugSymptomList searchDrugNamesBySymptom(String q, int page, int size) {
+		List<DrugSymptomResponse> drugSymptomResponses = symptomAdapter.searchDocsBySymptom(q, page, size)
+			.stream()
+			.map(SymptomMapper::toResponse)
+			.toList();
+
+		return new DrugSymptomList(drugSymptomResponses);
+	}
 }
