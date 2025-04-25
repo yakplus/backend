@@ -7,7 +7,9 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
-import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptomAdapter;
+import com.likelion.backendplus4.yakplus.drug.exception.ScraperException;
+import com.likelion.backendplus4.yakplus.drug.exception.error.ScraperErrorCode;
+import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptomEsAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.GovDrugJpaAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.DrugDataMapper;
@@ -21,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SymptomIndexService {
 	private final GovDrugJpaAdapter drugJpaAdapter;
-	private final DrugSymptomAdapter  symptomAdapter;
+	private final DrugSymptomEsAdapter symptomAdapter;
 
 	@Transactional
 	public void indexAll() {
@@ -33,12 +35,16 @@ public class SymptomIndexService {
 					return DrugDataMapper.toDocument(domain);
 				} catch (IOException ex) {
 					log.warn("파싱 실패 id={}", domain.getDrugId(), ex);
-					return null;
+					throw new ScraperException(ScraperErrorCode.PARSING_ERROR);
 				}
 			})
 			.filter(Objects::nonNull)
 			.toList();
 
 		symptomAdapter.saveAll(docs);
+	}
+
+	public List<String> getSymptomAutoComplete(String q) {
+		return symptomAdapter.getSearchAutoCompleteResponse(q);
 	}
 }
