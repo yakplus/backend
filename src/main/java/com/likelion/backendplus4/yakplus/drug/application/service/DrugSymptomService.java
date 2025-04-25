@@ -11,6 +11,7 @@ import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptom
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.GovDrugJpaAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.DrugDataMapper;
+import com.likelion.backendplus4.yakplus.drug.presentation.controller.dto.DrugSymptomSearchListResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SymptomIndexService {
+public class DrugSymptomService {
 
 	private static final int CHUNK_SIZE = 1_000;
 
@@ -46,7 +47,7 @@ public class SymptomIndexService {
 		} while (drugPage.hasNext());
 	}
 
-	public List<String> getSymptomAutoComplete(String q) {
-		return symptomAdapter.getSearchAutoCompleteResponse(q);
+	public DrugSymptomSearchListResponse getSymptomAutoComplete(String q) {
+		return new DrugSymptomSearchListResponse(symptomAdapter.getSearchAutoCompleteResponse(q));
 	}
 }

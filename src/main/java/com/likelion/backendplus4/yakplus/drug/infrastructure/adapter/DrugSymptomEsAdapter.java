@@ -1,12 +1,12 @@
 package com.likelion.backendplus4.yakplus.drug.infrastructure.adapter;
 
+
 import java.io.IOException;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.ErrorResponseException;
 
 import com.likelion.backendplus4.yakplus.drug.exception.EsSuggestException;
 import com.likelion.backendplus4.yakplus.drug.exception.error.EsErrorCode;
