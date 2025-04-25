@@ -1,6 +1,6 @@
-package com.likelion.backendplus4.yakplus.search.infrastructure.repository;
+package com.likelion.backendplus4.yakplus.index.infrastructure.repository;
 
-import com.likelion.backendplus4.yakplus.search.infrastructure.entity.GovDrugRawDataEntity;
+import com.likelion.backendplus4.yakplus.index.infrastructure.entity.GovDrugRawDataEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

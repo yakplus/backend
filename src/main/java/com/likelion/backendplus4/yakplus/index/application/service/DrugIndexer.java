@@ -1,10 +1,10 @@
-package com.likelion.backendplus4.yakplus.search.application.service;
+package com.likelion.backendplus4.yakplus.index.application.service;
 
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.IndexRequest;
-import com.likelion.backendplus4.yakplus.search.application.port.in.IndexUseCase;
-import com.likelion.backendplus4.yakplus.search.application.port.out.DrugIndexRepositoryPort;
-import com.likelion.backendplus4.yakplus.search.application.port.out.GovDrugRawDataPort;
-import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.index.application.port.in.IndexUseCase;
+import com.likelion.backendplus4.yakplus.index.application.port.out.DrugIndexRepositoryPort;
+import com.likelion.backendplus4.yakplus.index.application.port.out.GovDrugRawDataPort;
+import com.likelion.backendplus4.yakplus.index.presentation.controller.dto.request.IndexRequest;
+import com.likelion.backendplus4.yakplus.index.domain.model.Drug;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

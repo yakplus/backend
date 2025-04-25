@@ -1,11 +1,11 @@
-package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence;
+package com.likelion.backendplus4.yakplus.index.infrastructure.adapter.persistence;
 
-import com.likelion.backendplus4.yakplus.search.application.port.out.GovDrugRawDataPort;
-import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
-import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
-import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
-import com.likelion.backendplus4.yakplus.search.infrastructure.entity.GovDrugRawDataEntity;
-import com.likelion.backendplus4.yakplus.search.infrastructure.repository.RawDataJpaRepository;
+import com.likelion.backendplus4.yakplus.index.application.port.out.GovDrugRawDataPort;
+import com.likelion.backendplus4.yakplus.index.exception.IndexException;
+import com.likelion.backendplus4.yakplus.index.exception.error.IndexErrorCode;
+import com.likelion.backendplus4.yakplus.index.infrastructure.entity.GovDrugRawDataEntity;
+import com.likelion.backendplus4.yakplus.index.infrastructure.repository.RawDataJpaRepository;
+import com.likelion.backendplus4.yakplus.index.domain.model.Drug;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class GovDrugRawDataAdapter implements GovDrugRawDataPort {
      * @param lastSeq  마지막 처리 시퀀스 (null이면 0부터 조회)
      * @param pageable 페이징 및 정렬 정보
      * @return Drug 도메인 객체 리스트
-     * @throws SearchException 데이터베이스 조회 실패 시 발생
+     * @throws IndexException 데이터베이스 조회 실패 시 발생
      * @author 정안식
      * @since 2025-04-22
      * @modified 2025-04-24
@@ -64,7 +64,7 @@ public class GovDrugRawDataAdapter implements GovDrugRawDataPort {
      * @param lastSeq 마지막으로 조회된 Seq
      * @param pageable 페이징 및 정렬 정보
      * @return 조회된 GovDrugRawDataEntity 리스트
-     * @throws SearchException 조회 중 예외가 발생하면 SearchErrorCode.RAW_DATA_FETCH_ERROR로 래핑하여 던집니다.
+     * @throws IndexException 조회 중 예외가 발생하면 SearchErrorCode.RAW_DATA_FETCH_ERROR로 래핑하여 던집니다.
      * @author 정안식
      * @since 2025-04-22
      * @modified 2025-04-24
@@ -75,7 +75,7 @@ public class GovDrugRawDataAdapter implements GovDrugRawDataPort {
         } catch (Exception e) {
             //TODO: LOG ERROR 처리 요망
 //            log(LogLevel.ERROR, "MySQL 데이터 조회 실패", e);
-            throw new SearchException(SearchErrorCode.RAW_DATA_FETCH_ERROR);
+            throw new IndexException(IndexErrorCode.RAW_DATA_FETCH_ERROR);
         }
 
     }

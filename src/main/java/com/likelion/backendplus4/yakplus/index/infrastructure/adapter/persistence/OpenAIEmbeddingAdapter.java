@@ -1,8 +1,8 @@
-package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence;
+package com.likelion.backendplus4.yakplus.index.infrastructure.adapter.persistence;
 
-import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
-import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
-import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
+import com.likelion.backendplus4.yakplus.index.application.port.out.EmbeddingPort;
+import com.likelion.backendplus4.yakplus.index.exception.IndexException;
+import com.likelion.backendplus4.yakplus.index.exception.error.IndexErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingResponse;
@@ -35,7 +35,7 @@ public class OpenAIEmbeddingAdapter implements EmbeddingPort {
      *
      * @param text 벡터화할 입력 텍스트
      * @return float 배열 형태의 임베딩 벡터
-     * @throws SearchException EMBEDDING_API_ERROR 코드로 래핑하여 발생
+     * @throws IndexException EMBEDDING_API_ERROR 코드로 래핑하여 발생
      * @author 정안식
      * @since 2025-04-22
      * @modified 2025-04-24
@@ -49,7 +49,7 @@ public class OpenAIEmbeddingAdapter implements EmbeddingPort {
         } catch (Exception e) {
             //TODO: LOG ERROR 처리 요망
 //            log(LOGLEVEL.ERROR, "임베딩 API에서 문제가 발생하였습니다., e);
-            throw new SearchException(SearchErrorCode.EMBEDDING_API_ERROR);
+            throw new IndexException(IndexErrorCode.EMBEDDING_API_ERROR);
         }
     }
 

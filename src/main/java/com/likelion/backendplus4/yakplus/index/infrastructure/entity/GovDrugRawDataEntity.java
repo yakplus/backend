@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.search.infrastructure.entity;
+package com.likelion.backendplus4.yakplus.index.infrastructure.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

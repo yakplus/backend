@@ -89,10 +89,6 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     private List<SearchResponse> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
         List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
-        System.out.println("Service Logic Complete : Before Return to Controller");
-        drugs.stream()
-                .map(Drug::getItemName)
-                .forEach(System.out::println);
         return mapToDrugDomain(drugs);
     }
 

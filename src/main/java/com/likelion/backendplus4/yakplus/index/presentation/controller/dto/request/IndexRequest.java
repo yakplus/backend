@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request;
+package com.likelion.backendplus4.yakplus.index.presentation.controller.dto.request;
 
 /**
  * 인덱싱 요청 정보 DTO
