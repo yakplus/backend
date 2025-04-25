@@ -1,20 +1,17 @@
 package com.likelion.backendplus4.yakplus.drug.application.service;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
-import com.likelion.backendplus4.yakplus.drug.exception.ScraperException;
-import com.likelion.backendplus4.yakplus.drug.exception.error.ScraperErrorCode;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptomEsAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.GovDrugJpaAdapter;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.DrugDataMapper;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,26 +19,31 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SymptomIndexService {
+
+	private static final int CHUNK_SIZE = 1_000;
+
 	private final GovDrugJpaAdapter drugJpaAdapter;
 	private final DrugSymptomEsAdapter symptomAdapter;
 
-	@Transactional
 	public void indexAll() {
-		List<GovDrug> drugs = drugJpaAdapter.findAllDrugs();
+		int page = 0;
+		Page<GovDrug> drugPage;
 
-		List<DrugSymptomDocument> docs = drugs.stream()
-			.map(domain -> {
-				try {
-					return DrugDataMapper.toDocument(domain);
-				} catch (IOException ex) {
-					log.warn("파싱 실패 id={}", domain.getDrugId(), ex);
-					throw new ScraperException(ScraperErrorCode.PARSING_ERROR);
-				}
-			})
-			.filter(Objects::nonNull)
-			.toList();
+		do {
+			// 1. 페이징으로 DB에서 한 청크 가져오기
+			drugPage = drugJpaAdapter.findAllDrugs(PageRequest.of(page, CHUNK_SIZE));
 
-		symptomAdapter.saveAll(docs);
+			// 2. 도메인 → ES Document 변환
+			List<DrugSymptomDocument> docs = drugPage.stream()
+				.map(DrugDataMapper::toDocument)  // 내부에서 예외 처리 됨
+				.toList();
+
+			// 3. 청크별 ES에 색인
+			symptomAdapter.saveAll(docs);
+
+			// 4. 다음 1000개 값 루프
+			page++;
+		} while (drugPage.hasNext());
 	}
 
 	public List<String> getSymptomAutoComplete(String q) {

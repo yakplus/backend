@@ -1,7 +1,8 @@
 package com.likelion.backendplus4.yakplus.drug.infrastructure.adapter;
 
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
@@ -16,9 +17,9 @@ public class GovDrugJpaAdapter {
 
 	private final GovDrugJpaRepository drugJpaRepository;
 
-	public List<GovDrug> findAllDrugs() {
-		return drugJpaRepository.findAll().stream()
-			.map(DrugDataMapper::toDomainFromEntity)
-			.toList();
+	/** 페이징 처리된 도메인 객체 리스트 반환 */
+	public Page<GovDrug> findAllDrugs(Pageable pageable) {
+		return drugJpaRepository.findAll(pageable)
+			.map(DrugDataMapper::toDomainFromEntity);
 	}
 }
