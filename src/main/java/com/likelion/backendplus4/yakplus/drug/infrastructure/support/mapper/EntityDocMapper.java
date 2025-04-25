@@ -15,6 +15,7 @@ import com.likelion.backendplus4.yakplus.drug.infrastructure.support.parser.Symp
  *
  * @author 박찬병
  * @since 2025-04-25
+ * @modified 2025-04-25
  */
 public class EntityDocMapper {
 	/**
@@ -26,6 +27,7 @@ public class EntityDocMapper {
 	 * @throws ScraperException JSON 파싱 실패 시 발생
 	 * @author 박찬병
 	 * @since 2025-04-25
+	 * @modified 2025-04-25
 	 */
 	public static DrugSymptomDocument toDocument(GovDrug entity) {
 		List<String> raws;

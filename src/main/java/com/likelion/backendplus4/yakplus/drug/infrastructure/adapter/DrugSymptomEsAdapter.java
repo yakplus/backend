@@ -19,6 +19,14 @@ import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Elasticsearch를 통해 약품 증상 문서를 색인하고,
+ * 자동완성 제안 결과를 제공하는 어댑터입니다.
+ *
+ * @author 박찬병
+ * @since 2025-04-24
+ * @modified 2025-04-25
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -27,12 +35,30 @@ public class DrugSymptomEsAdapter {
 	private final DrugSymptomRepository symptomRepository;
 	private final ElasticsearchClient esClient;
 
-
+	/**
+	 * 주어진 증상 문서 리스트를 Elasticsearch에 색인합니다.
+	 *
+	 * @param docs 색인할 DrugSymptomDocument 객체 리스트
+	 * @author 박찬병
+	 * @since 2025-04-24
+	 * @modified 2025-04-25
+	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveAll(List<DrugSymptomDocument> docs) {
 		symptomRepository.saveAll(docs);
 	}
 
+	/**
+	 * 사용자 입력 키워드를 바탕으로 Elasticsearch Suggest API를 호출해
+	 * 자동완성 추천 단어 리스트를 반환합니다.
+	 *
+	 * @param q 사용자 입력 문자열
+	 * @return 추천 키워드 리스트
+	 * @throws EsSuggestException 자동완성 API 호출 실패 시 발생
+	 * @author 박찬병
+	 * @since 2025-04-24
+	 * @modified 2025-04-25
+	 */
 	public List<String> getSearchAutoCompleteResponse(String q) {
 		SearchResponse<Void> resp;
 		try {
@@ -61,4 +87,3 @@ public class DrugSymptomEsAdapter {
 			.toList();
 	}
 }
-
