@@ -4,7 +4,7 @@ import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 
 public class DrugDataMapper {
-	public static GovDrug toDomainFromEntity(GovDrugEntity e){
+	public static GovDrug toDomainFromEntity(GovDrugEntity e) {
 		return GovDrug.builder()
 			.drugId(e.getId())
 			.drugName(e.getDrugName())
@@ -20,4 +20,6 @@ public class DrugDataMapper {
 			.imageUrl(e.getImageUrl())
 			.build();
 	}
+
+
 }
