@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.drug.presentation.controller.dto;
+package com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom;
 
 import java.util.List;
 
