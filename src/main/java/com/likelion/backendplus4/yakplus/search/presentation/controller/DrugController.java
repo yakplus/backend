@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
+
 /**
  * 약품 검색 API 엔드포인트를 제공하는 컨트롤러 클래스
  *
@@ -40,6 +42,7 @@ public class DrugController {
      */
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<List<SearchResponse>>> search(@RequestBody SearchRequest searchRequest) {
+        log("drugController 요청 수신" + searchRequest.toString());
         return ApiResponse.success(searchDrugUseCase.search(searchRequest));
     }
 

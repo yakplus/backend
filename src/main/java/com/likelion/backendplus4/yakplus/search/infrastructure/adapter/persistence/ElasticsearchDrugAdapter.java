@@ -2,6 +2,7 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persiste
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSymptom;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
@@ -26,15 +27,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 import java.util.Objects;
 
 /**
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
- * DrugSearchRepositoryPort를 구현하여
- * Elasticsearch 원격 호출을 캡슐화합니다.
+ * DrugSearchRepositoryPort를 구현하여 Elasticsearch 원격 호출을 캡슐화합니다.
  *
+ * @modified 2025-04-27
+ * 25.04.27 - searchBySymptoms() 메서드 리팩토링
  * @since 2025-04-22
- * @modified 2025-04-24
  */
 @Component
 @RequiredArgsConstructor
@@ -56,20 +59,20 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return 검색된 Drug 도메인 객체 리스트
      * @throws SearchException 검색 처리 중 오류 발생 시
      * @author 정안식
+     * @modified 2025-04-27
+     * 25.04.27 - 코드 리팩토링
      * @since 2025-04-22
-     * @modified 2025-04-24
      */
     @Override
     public List<Drug> searchBySymptoms(String query, float[] vector, int size, int from) {
         try {
+            log("searchBySymptoms() 메서드 호출, 검색어: " + query);
             String esQuery = buildSearchQuery(query, vector, size, from);
             Response response = executeSearch(esQuery);
-            List<Drug> results = parseSearchResults(response);
-            return results;
+            return parseSearchResults(response);
 
         } catch (Exception e) {
-            //TODO: LOG ERROR 처리 요망
-//            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + query, e);
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + query, e);
             throw new SearchException(SearchErrorCode.ES_SEARCH_ERROR);
         }
     }
@@ -146,11 +149,14 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return Elasticsearch에 전달할 쿼리 JSON 문자열
      * @throws IOException JSON 직렬화 과정에서 오류 발생 시
      * @author 정안식
+     * @modified 2025-04-27
+     * 25.04.27 - 스크립트 필드명을 변경된 Drug 도메인 객체에 맞추어 수정
+     * - 텍스트 매칭 필드 searchAll → efficacy 로 변경(현재는 약의 효과로만 검색하고 있음)
      * @since 2025-04-22
-     * @modified 2025-04-24
      */
     private String buildSearchQuery(String query, float[] vector, int size, int from) throws IOException {
         String vectorJson = objectMapper.writeValueAsString(vector);
+        String escapedQuery = query.replace("\"", "\\\\\"");
         return """
                 {
                   "from": %d,
@@ -161,7 +167,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                         "script_score": {
                           "query": { "match_all": {} },
                           "script": {
-                            "inline": "cosineSimilarity(params.queryVector, 'eeVector') + 1.0",
+                            "inline": "cosineSimilarity(params.queryVector, 'vector') + 1.0",
                             "lang": "painless",
                             "params": { "queryVector": %s }
                           }
@@ -170,7 +176,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                       "should": [
                         {
                           "match": {
-                            "searchAll": {
+                            "efficacy": {
                               "query": "%s",
                               "fuzziness": "AUTO",
                               "boost": 0.2
@@ -181,7 +187,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                     }
                   }
                 }
-                """.formatted(from, size, vectorJson, query.replace("\"", "\\\\\""));
+                """.formatted(from, size, vectorJson, escapedQuery);
     }
 
     /**
@@ -191,10 +197,11 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return Elasticsearch 응답 객체
      * @throws IOException 요청 전송 또는 응답 처리 중 오류 발생 시
      * @author 정안식
-     * @since 2025-04-22
      * @modified 2025-04-24
+     * @since 2025-04-22
      */
     private Response executeSearch(String esQuery) throws IOException {
+        log("executeSearch() 메서드 호출");
         Request request = new Request("GET", "/" + SEARCH_INDEX + "/_search");
         request.setEntity(new NStringEntity(esQuery, ContentType.APPLICATION_JSON));
         return restClient.performRequest(request);
@@ -208,24 +215,60 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return 파싱된 Drug 도메인 객체 리스트
      * @throws IOException 응답 스트림 처리 중 오류 발생 시
      * @author 정안식
+     * @modified 2025-04-27
+     * 25.04.27 - 스크립트 필드명을 변경된 Drug 도메인 객체에 맞추어 수정
      * @since 2025-04-22
-     * @modified 2025-04-24
      */
     private List<Drug> parseSearchResults(Response response) throws IOException {
+        log("parseSearchResults() 메서드 호출");
         InputStream is = response.getEntity().getContent();
         JsonNode hits = objectMapper.readTree(is).path("hits").path("hits");
 
         List<Drug> results = new ArrayList<>();
         for (JsonNode hit : hits) {
-            JsonNode source = hit.path("_source");
+            JsonNode src = hit.path("_source");
+
+            long drugId = src.path("drugId").asLong();
+            String drugName = src.path("drugName").asText();
+            String company = src.path("company").asText();
+
+            List<String> efficacyList = new ArrayList<>();
+            for (JsonNode e : src.path("efficacy")) {
+                efficacyList.add(e.asText());
+            }
+
+            String imageUrl = src.path("imageUrl").asText(null);
+            float[] vectorArr = parseVector(src.path("vector"));
+
             Drug drug = Drug.builder()
-                    .itemSeq(source.path("itemSeq").asLong())
-                    .itemName(source.path("itemName").asText())
-                    .entpName(source.path("entpName").asText())
-                    .eeText(source.path("eeText").asText())
+                    .drugId(drugId)
+                    .drugName(drugName)
+                    .company(company)
+                    .efficacy(efficacyList)
+                    .imageUrl(imageUrl)
+                    .vector(vectorArr)
                     .build();
             results.add(drug);
         }
         return results;
+    }
+
+    /**
+     * JSON 배열로 전달된 vector 노드를 float[]로 변환한다.
+     *
+     * @param vectorNode vectors JSON 배열 노드
+     * @return float[] 변환된 벡터 배열
+     * @author 정안식
+     * @since 2025-04-27
+     */
+    private float[] parseVector(JsonNode vectorNode) {
+        if (!vectorNode.isArray()) {
+            return new float[0];
+        }
+        float[] vec = new float[vectorNode.size()];
+        for (int i = 0; i < vectorNode.size(); i++) {
+            vec[i] = vectorNode.get(i).floatValue();
+        }
+        return vec;
     }
 }
