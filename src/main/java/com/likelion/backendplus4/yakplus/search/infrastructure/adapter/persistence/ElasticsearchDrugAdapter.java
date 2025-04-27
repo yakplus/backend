@@ -77,6 +77,17 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         }
     }
 
+    /**
+     * 사용자가 입력한 키워드를 바탕으로 Elasticsearch Completion Suggest API를 호출하여
+     * symptomSuggester 필드에서 자동완성 추천 단어 리스트를 반환합니다.
+     *
+     * @param q 검색어 프리픽스
+     * @return 자동완성 추천 키워드 리스트
+     * @throws SearchException 자동완성 API 호출 실패 시 발생
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-28
+     * */
     @Override
     public List<String> getSymptomAutoCompleteResponse(String q) {
         SearchResponse<Void> resp;
@@ -113,7 +124,10 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @param page 조회할 페이지 번호 (0부터 시작)
      * @param size 페이지 당 문서 수
      * @return 증상 문서 리스트
-     * @throws EsSuggestException 검색 중 오류 발생 시
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-28
+     * @throws SearchException 검색 중 오류 발생 시
      */
     public List<DrugSymptom> searchDocsBySymptom(String q, int page, int size) {
         try {
@@ -123,7 +137,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                     .size(size)
                     .query(qb -> qb
                         .match(m -> m
-                            .field("symptom")   // only_nouns analyzer 적용된 필드
+                            .field("efficacy")   // only_nouns analyzer 적용된 필드
                             .query(q)           // 사용자가 입력한 q 값
                         )
                     )

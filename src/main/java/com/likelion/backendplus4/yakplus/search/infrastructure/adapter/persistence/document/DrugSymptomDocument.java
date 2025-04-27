@@ -33,8 +33,14 @@ public class DrugSymptomDocument {
 	@JsonProperty("ITEM_NAME")
 	private String drugName;
 
-	@Field(type = FieldType.Text, name = "symptom", analyzer = "only_nouns")
-	private String symptom;
+	@Field(type = FieldType.Text, name = "company")
+	private String company;
+
+	@Field(type = FieldType.Text, name = "efficacy")
+	private List<String> efficacy;
+
+	@Field(type = FieldType.Keyword, name = "imageUrl")
+	private String imageUrl;
 
 	@CompletionField(analyzer = "symptom_autocomplete")
 	private List<String> symptomSuggester;

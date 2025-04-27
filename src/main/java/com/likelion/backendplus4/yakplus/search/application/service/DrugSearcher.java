@@ -1,9 +1,7 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomList;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomResponse;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
@@ -13,6 +11,8 @@ import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErr
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -64,8 +64,8 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @modified 2025-04-25
      */
     @Override
-    public DrugSymptomSearchListResponse getSymptomAutoComplete(String q) {
-        return new DrugSymptomSearchListResponse(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
+    public AutoCompleteStringList getSymptomAutoComplete(String q) {
+        return new AutoCompleteStringList(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
     }
 
     /**
@@ -78,13 +78,13 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @since 2025-04-25
      * @modified 2025-04-27
      */
-    public DrugSymptomList searchDrugNamesBySymptom(String q, int page, int size) {
-        List<DrugSymptomResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
+    public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
+        List<SearchResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
             .stream()
             .map(SymptomMapper::toResponse)
             .toList();
 
-        return new DrugSymptomList(drugSymptomResponses);
+        return new SearchResponseList(drugSymptomResponses);
     }
 
     /**

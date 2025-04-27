@@ -1,11 +1,12 @@
 package com.likelion.backendplus4.yakplus.search.presentation.controller;
 
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomList;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,8 +58,8 @@ public class DrugController {
      * @modified 2025-04-27
      */
     @GetMapping("/autocomplete/symptom")
-    public ResponseEntity<ApiResponse<DrugSymptomSearchListResponse>> autocomplete(@RequestParam String q) {
-        DrugSymptomSearchListResponse results = searchDrugUseCase.getSymptomAutoComplete(q);
+    public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(@RequestParam String q) {
+        AutoCompleteStringList results = searchDrugUseCase.getSymptomAutoComplete(q);
         return ApiResponse.success(results);
     }
 
@@ -74,11 +75,11 @@ public class DrugController {
      * @modified 2025-04-27
      */
     @GetMapping("/search/symptom")
-    public ResponseEntity<ApiResponse<DrugSymptomList>> searchNames(
+    public ResponseEntity<ApiResponse<SearchResponseList>> searchNames(
         @RequestParam String q,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size) {
-        DrugSymptomList drugSymptomList = searchDrugUseCase.searchDrugNamesBySymptom(q, page, size);
+        SearchResponseList drugSymptomList = searchDrugUseCase.searchDrugNamesBySymptom(q, page, size);
         return ApiResponse.success(drugSymptomList);
     }
 

@@ -3,7 +3,7 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.support;
 
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSymptom;
 import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 
 /**
  * 증상 관련 Document를 다루는 매퍼 클래스입니다.
@@ -27,7 +27,9 @@ public class SymptomMapper {
 		return DrugSymptom.builder()
 			.drugId(symptomDocument.getDrugId())
 			.drugName(symptomDocument.getDrugName())
-			.symptom(symptomDocument.getSymptom())
+			.efficacy(symptomDocument.getEfficacy())
+			.company(symptomDocument.getCompany())
+			.imageUrl(symptomDocument.getImageUrl())
 			.build();
 	}
 
@@ -41,11 +43,13 @@ public class SymptomMapper {
 	 * @since 2025-04-25
 	 * @modified 2025-04-25
 	 */
-	public static DrugSymptomResponse toResponse(DrugSymptom drugSymptom) {
-		return DrugSymptomResponse.builder()
+	public static SearchResponse toResponse(DrugSymptom drugSymptom) {
+		return SearchResponse.builder()
 			.drugId(drugSymptom.getDrugId())
 			.drugName(drugSymptom.getDrugName())
-			.symptom(drugSymptom.getSymptom())
+			.efficacy(drugSymptom.getEfficacy())
+			.company(drugSymptom.getCompany())
+			.imageUrl(drugSymptom.getImageUrl())
 			.build();
 	}
 }
