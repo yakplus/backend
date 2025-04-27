@@ -1,5 +1,8 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomList;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
@@ -56,8 +59,28 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @since 2025-04-24
      * @modified 2025-04-25
      */
+    @Override
     public DrugSymptomSearchListResponse getSymptomAutoComplete(String q) {
         return new DrugSymptomSearchListResponse(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
+    }
+
+    /**
+     * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
+     *
+     * @param q     검색어 프리픽스
+     * @param page  조회할 페이지 번호
+     * @param size  페이지 당 문서 수
+     * @return 중복 제거된 약품명 리스트
+     * @since 2025-04-25
+     * @modified 2025-04-27
+     */
+    public DrugSymptomList searchDrugNamesBySymptom(String q, int page, int size) {
+        List<DrugSymptomResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
+            .stream()
+            .map(SymptomMapper::toResponse)
+            .toList();
+
+        return new DrugSymptomList(drugSymptomResponses);
     }
 
     /**

@@ -11,12 +11,12 @@
 // import org.springframework.transaction.annotation.Propagation;
 // import org.springframework.transaction.annotation.Transactional;
 //
-// import com.likelion.backendplus4.yakplus.drug.domain.model.DrugSymptom;
+// import com.likelion.backendplus4.yakplus.search.domain.model.DrugSymptom;
 // import com.likelion.backendplus4.yakplus.drug.exception.EsSuggestException;
 // import com.likelion.backendplus4.yakplus.drug.exception.error.EsErrorCode;
 // import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
 // import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.elasticsearch.DrugSymptomRepository;
-// import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.SymptomMapper;
+// import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
 //
 // import co.elastic.clients.elasticsearch.ElasticsearchClient;
 // import co.elastic.clients.elasticsearch.core.SearchResponse;

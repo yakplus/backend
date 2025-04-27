@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.drug.domain.model;
+package com.likelion.backendplus4.yakplus.search.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -2,13 +2,17 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persiste
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.yakplus.search.domain.model.DrugSymptom;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
@@ -22,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
@@ -96,6 +101,38 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
             .map(CompletionSuggestOption::text)
             .distinct()
             .toList();
+    }
+
+    /**
+     * 검색어에 매칭되는 증상 문서 리스트를 Elasticsearch에서 조회합니다.
+     *
+     * @param q    검색어 프리픽스
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 문서 수
+     * @return 증상 문서 리스트
+     * @throws EsSuggestException 검색 중 오류 발생 시
+     */
+    public List<DrugSymptom> searchDocsBySymptom(String q, int page, int size) {
+        try {
+            SearchResponse<DrugSymptomDocument> resp = esClient.search(s -> s
+                    .index("eedoc")
+                    .from(page * size)
+                    .size(size)
+                    .query(qb -> qb
+                        .match(m -> m
+                            .field("symptom")   // only_nouns analyzer 적용된 필드
+                            .query(q)           // 사용자가 입력한 q 값
+                        )
+                    )
+                , DrugSymptomDocument.class);
+            return resp.hits().hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(SymptomMapper::toDomain)
+                .toList();
+        } catch (IOException e) {
+            throw new SearchException(SearchErrorCode.ES_SEARCH_FAIL);
+        }
     }
 
     /**

@@ -10,7 +10,7 @@
 // import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.DrugSymptomEsAdapter;
 // import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.GovDrugJpaAdapter;
 // import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.document.DrugSymptomDocument;
-// import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.SymptomMapper;
+// import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
 // import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomList;
 // import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomResponse;
 // import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;

@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.yakplus.search.presentation.controller;
 
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomList;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
@@ -50,12 +51,32 @@ public class DrugController {
      * @return 자동완성 추천 키워드 리스트를 감싼 ApiResponse
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-25
+     * @modified 2025-04-27
      */
     @GetMapping("/autocomplete/symptom")
     public ResponseEntity<ApiResponse<DrugSymptomSearchListResponse>> autocomplete(@RequestParam String q) {
         DrugSymptomSearchListResponse results = searchDrugUseCase.getSymptomAutoComplete(q);
         return ApiResponse.success(results);
+    }
+
+    /**
+     * 증상 키워드 검색으로 매칭되는 약품명 리스트를 반환합니다.
+     *
+     * @param q     검색어 프리픽스
+     * @param page  조회할 페이지 번호 (기본값 0)
+     * @param size  페이지 당 문서 수 (기본값 20)
+     * @return 약품명 리스트를 담은 ApiResponse
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-27
+     */
+    @GetMapping("/search/symptom")
+    public ResponseEntity<ApiResponse<DrugSymptomList>> searchNames(
+        @RequestParam String q,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size) {
+        DrugSymptomList drugSymptomList = searchDrugUseCase.searchDrugNamesBySymptom(q, page, size);
+        return ApiResponse.success(drugSymptomList);
     }
 
 }
