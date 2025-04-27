@@ -105,16 +105,16 @@ public class DrugSymptomEsAdapter {
 	public List<DrugSymptom> searchDocsBySymptom(String q, int page, int size) {
 		try {
 			SearchResponse<DrugSymptomDocument> resp = esClient.search(s -> s
-				.index(INDEX)
-				.from(page * size)
-				.size(size)
-				.query(qb -> qb
-					.multiMatch(mm -> mm
-						.fields("symptom")
-						.query(q)
-						.fuzziness("AUTO")
+					.index("eedoc")
+					.from(page * size)
+					.size(size)
+					.query(qb -> qb
+						.match(m -> m
+							.field("symptom")   // only_nouns analyzer 적용된 필드
+							.query(q)           // 사용자가 입력한 q 값
+						)
 					)
-				), DrugSymptomDocument.class);
+				, DrugSymptomDocument.class);
 			return resp.hits().hits().stream()
 				.map(Hit::source)
 				.filter(Objects::nonNull)
