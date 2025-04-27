@@ -2,15 +2,17 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persiste
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.likelion.backendplus4.yakplus.index.application.port.out.DrugIndexRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
-import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
@@ -37,6 +38,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final ElasticsearchClient esClient;
 
     /**
      * 주어진 쿼리 및 임베딩 벡터를 사용해 Elasticsearch에서 검색을 수행하고,
@@ -65,6 +67,35 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 //            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + query, e);
             throw new SearchException(SearchErrorCode.ES_SEARCH_ERROR);
         }
+    }
+
+    @Override
+    public List<String> getSymptomAutoCompleteResponse(String q) {
+        SearchResponse<Void> resp;
+        try {
+            resp = esClient.search(s -> s
+                    .index("eedoc")
+                    .suggest(su -> su
+                        .suggesters("symp_sugg", sg -> sg
+                            .prefix(q)
+                            .completion(c -> c
+                                .field("symptomSuggester")
+                                .analyzer("symptom_search_autocomplete")  // ← 이 줄만 추가
+                                .size(20)
+                            )
+                        )
+                    )
+                , Void.class);
+        } catch (IOException e) {
+            throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
+        }
+
+        // Suggest 파싱
+        return resp.suggest().get("symp_sugg")
+            .get(0).completion().options().stream()
+            .map(CompletionSuggestOption::text)
+            .distinct()
+            .toList();
     }
 
     /**

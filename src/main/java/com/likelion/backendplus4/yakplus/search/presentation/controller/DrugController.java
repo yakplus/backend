@@ -1,14 +1,17 @@
 package com.likelion.backendplus4.yakplus.search.presentation.controller;
 
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -38,4 +41,21 @@ public class DrugController {
     public ResponseEntity<ApiResponse<List<SearchResponse>>> search(@RequestBody SearchRequest searchRequest) {
         return ApiResponse.success(searchDrugUseCase.search(searchRequest));
     }
+
+
+    /**
+     * 사용자 입력 키워드를 바탕으로 증상 자동완성 추천 결과를 조회합니다.
+     *
+     * @param q 검색어 프리픽스
+     * @return 자동완성 추천 키워드 리스트를 감싼 ApiResponse
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-25
+     */
+    @GetMapping("/autocomplete/symptom")
+    public ResponseEntity<ApiResponse<DrugSymptomSearchListResponse>> autocomplete(@RequestParam String q) {
+        DrugSymptomSearchListResponse results = searchDrugUseCase.getSymptomAutoComplete(q);
+        return ApiResponse.success(results);
+    }
+
 }

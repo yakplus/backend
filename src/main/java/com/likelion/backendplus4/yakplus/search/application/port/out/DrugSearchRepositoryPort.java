@@ -5,4 +5,6 @@ import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 
 public interface DrugSearchRepositoryPort {
     List<Drug> searchBySymptoms(String query, float[] vector, int from, int size);
+
+    List<String> getSymptomAutoCompleteResponse(String q);
 }

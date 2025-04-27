@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.symptom.DrugSymptomSearchListResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
@@ -43,6 +44,20 @@ public class DrugSearcher implements SearchDrugUseCase {
         validateQuery(request.query());
         float[] embeddings = generateEmbeddings(request.query());
         return searchDrugs(request, embeddings);
+    }
+
+    /**
+     * 주어진 사용자 입력 문자열을 바탕으로 증상 자동완성 키워드를 가져옵니다.
+     * Elasticsearch에서 Suggest API 등을 활용하여 추천 결과를 반환합니다.
+     *
+     * @param q 사용자 입력 문자열
+     * @return 자동완성 추천 결과 리스트 DTO
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-25
+     */
+    public DrugSymptomSearchListResponse getSymptomAutoComplete(String q) {
+        return new DrugSymptomSearchListResponse(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
     }
 
     /**
