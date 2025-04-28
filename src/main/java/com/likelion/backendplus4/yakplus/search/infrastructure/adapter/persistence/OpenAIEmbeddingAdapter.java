@@ -1,9 +1,11 @@
 package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence;
 
+import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
@@ -12,16 +14,18 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.RetryUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
+
+import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 
 /**
  * OpenAI 임베딩 API를 호출하여 텍스트에 대한 벡터 임베딩을 생성하는 어댑터 클래스입니다.
  * EmbeddingPort 인터페이스를 구현하며, 오류 발생 시 SearchException으로 래핑합니다.
  *
- * @since 2025-04-22
  * @modified 2025-04-24
+ * @since 2025-04-22
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OpenAIEmbeddingAdapter implements EmbeddingPort {
@@ -37,8 +41,8 @@ public class OpenAIEmbeddingAdapter implements EmbeddingPort {
      * @return float 배열 형태의 임베딩 벡터
      * @throws SearchException EMBEDDING_API_ERROR 코드로 래핑하여 발생
      * @author 정안식
-     * @since 2025-04-22
      * @modified 2025-04-24
+     * @since 2025-04-22
      */
     @Override
     public float[] getEmbedding(String text) {
@@ -47,8 +51,7 @@ public class OpenAIEmbeddingAdapter implements EmbeddingPort {
             EmbeddingResponse response = embeddingModel.embedForResponse(List.of(text));
             return response.getResults().getFirst().getOutput();
         } catch (Exception e) {
-            //TODO: LOG ERROR 처리 요망
-//            log(LOGLEVEL.ERROR, "임베딩 API에서 문제가 발생하였습니다., e);
+            log(LogLevel.ERROR, "임베딩 API에서 문제가 발생하였습니다.", e);
             throw new SearchException(SearchErrorCode.EMBEDDING_API_ERROR);
         }
     }
@@ -59,10 +62,11 @@ public class OpenAIEmbeddingAdapter implements EmbeddingPort {
      *
      * @return 초기화된 OpenAiEmbeddingModel 객체
      * @author 정안식
-     * @since 2025-04-22
      * @modified 2025-04-24
+     * @since 2025-04-22
      */
     private OpenAiEmbeddingModel createEmbeddingModel() {
+        log("createEmbeddingModel() 메서드 호출, 임베딩 모델: " + EMBEDDING_MODEL);
         return new OpenAiEmbeddingModel(
                 openAiApi,
                 MetadataMode.EMBED,

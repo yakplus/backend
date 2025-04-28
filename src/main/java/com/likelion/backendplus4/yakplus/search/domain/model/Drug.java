@@ -1,20 +1,29 @@
 package com.likelion.backendplus4.yakplus.search.domain.model;
 
+import com.likelion.backendplus4.yakplus.drug.domain.model.vo.Material;
 import lombok.*;
+
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Drug {
-    private Long itemSeq;
-    private String itemName;
-    private String entpName;
-    private String eeText;
-    private LocalDate itemPermitDate;
-    private Map<String, Object> materialName;
-    private String nbDocData;
-    private String udDocData;
-    private String storageMethod;
+    private Long drugId;
+    private String drugName;
+    private String company;
+    private List<String> efficacy;
+    private float[] vector;
+    private LocalDate permitDate;
+    private boolean isGeneral;
+    private List<Material> materialInfo;
+    private String storeMethod;
     private String validTerm;
-    private String imgUrl;
+    private List<String> usage;
+    private Map<String, List<String>> precaution;
+    private String imageUrl;
 }
