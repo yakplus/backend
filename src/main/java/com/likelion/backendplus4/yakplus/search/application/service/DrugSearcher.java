@@ -1,8 +1,8 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
+import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
 import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
-import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
@@ -131,7 +131,6 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @author 정안식
      * @modified 2025-04-24
      * @since 2025-04-22
-     * @modified 2025-04-24
      */
     private List<SearchResponse> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
         log("searchDrugs() 메서드 호출, 검색어: " + searchRequest.query());

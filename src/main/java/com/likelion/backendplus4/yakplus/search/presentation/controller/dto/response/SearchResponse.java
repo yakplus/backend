@@ -2,6 +2,7 @@ package com.likelion.backendplus4.yakplus.search.presentation.controller.dto.res
 
 import java.util.List;
 
+
 import lombok.Builder;
 
 /**
