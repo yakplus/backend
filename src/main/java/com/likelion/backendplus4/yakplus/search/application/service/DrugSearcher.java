@@ -1,6 +1,8 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.application.port.out.EmbeddingPort;
@@ -9,6 +11,8 @@ import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErr
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +25,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
  * 사용자 검색 요청을 처리하고, 벡터 유사도 및 텍스트 검색을 통해
  * 결과를 반환하는 서비스 구현체
  *
- * @modified 2025-04-24
+ * @modified 2025-04-28
  * @since 2025-04-22
  */
 @Service
@@ -47,6 +51,42 @@ public class DrugSearcher implements SearchDrugUseCase {
         validateQuery(request.query());
         float[] embeddings = generateEmbeddings(request.query());
         return searchDrugs(request, embeddings);
+    }
+
+    /**
+     * 주어진 사용자 입력 문자열을 바탕으로 증상 자동완성 키워드를 가져옵니다.
+     * Elasticsearch에서 Suggest API 등을 활용하여 추천 결과를 반환합니다.
+     *
+     * @param q 사용자 입력 문자열
+     * @return 자동완성 추천 결과 리스트 DTO
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-25
+     */
+    @Override
+    public AutoCompleteStringList getSymptomAutoComplete(String q) {
+        log("getSymptomAutoComplete() 메서드 호출, 검색어: " + q);
+        return new AutoCompleteStringList(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
+    }
+
+    /**
+     * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
+     *
+     * @param q     검색어 프리픽스
+     * @param page  조회할 페이지 번호
+     * @param size  페이지 당 문서 수
+     * @return 중복 제거된 약품명 리스트
+     * @since 2025-04-25
+     * @modified 2025-04-27
+     */
+    public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
+        log("searchDrugNamesBySymptom() 메서드 호출, 검색어: " + q);
+        List<SearchResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
+            .stream()
+            .map(SymptomMapper::toResponse)
+            .toList();
+
+        return new SearchResponseList(drugSymptomResponses);
     }
 
     /**

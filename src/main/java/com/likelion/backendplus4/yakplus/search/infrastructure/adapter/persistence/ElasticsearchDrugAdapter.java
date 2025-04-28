@@ -3,13 +3,21 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persiste
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
+import com.likelion.backendplus4.yakplus.search.domain.model.DrugSymptom;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
+
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -21,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
+
+import java.util.Objects;
 
 /**
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
@@ -37,6 +47,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final ElasticsearchClient esClient;
 
     /**
      * 주어진 쿼리 및 임베딩 벡터를 사용해 Elasticsearch에서 검색을 수행하고,
@@ -64,6 +75,85 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         } catch (Exception e) {
             log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + query, e);
             throw new SearchException(SearchErrorCode.ES_SEARCH_ERROR);
+        }
+    }
+
+    /**
+     * 사용자가 입력한 키워드를 바탕으로 Elasticsearch Completion Suggest API를 호출하여
+     * symptomSuggester 필드에서 자동완성 추천 단어 리스트를 반환합니다.
+     *
+     * @param q 검색어 프리픽스
+     * @return 자동완성 추천 키워드 리스트
+     * @throws SearchException 자동완성 API 호출 실패 시 발생
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-28
+     * */
+    @Override
+    public List<String> getSymptomAutoCompleteResponse(String q) {
+        log("getSymptomAutoCompleteResponse() 메서드 호출, 검색어: " + q);
+        SearchResponse<Void> resp;
+        try {
+            resp = esClient.search(s -> s
+                    .index("eedoc")
+                    .suggest(su -> su
+                        .suggesters("symp_sugg", sg -> sg
+                            .prefix(q)
+                            .completion(c -> c
+                                .field("symptomSuggester")
+                                .analyzer("symptom_search_autocomplete")  // ← 이 줄만 추가
+                                .size(20)
+                            )
+                        )
+                    )
+                , Void.class);
+        } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
+            throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
+        }
+
+        // Suggest 파싱
+        return resp.suggest().get("symp_sugg")
+            .get(0).completion().options().stream()
+            .map(CompletionSuggestOption::text)
+            .distinct()
+            .toList();
+    }
+
+    /**
+     * 검색어에 매칭되는 증상 문서 리스트를 Elasticsearch에서 조회합니다.
+     *
+     * @param q    검색어 프리픽스
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 문서 수
+     * @return 증상 문서 리스트
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-04-28
+     * @throws SearchException 검색 중 오류 발생 시
+     */
+    public List<DrugSymptom> searchDocsBySymptom(String q, int page, int size) {
+        log("searchDocsBySymptom() 메서드 호출, 검색어: " + q);
+        try {
+            SearchResponse<DrugSymptomDocument> resp = esClient.search(s -> s
+                    .index("eedoc")
+                    .from(page * size)
+                    .size(size)
+                    .query(qb -> qb
+                        .match(m -> m
+                            .field("efficacy")   // only_nouns analyzer 적용된 필드
+                            .query(q)           // 사용자가 입력한 q 값
+                        )
+                    )
+                , DrugSymptomDocument.class);
+            return resp.hits().hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(SymptomMapper::toDomain)
+                .toList();
+        } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
+            throw new SearchException(SearchErrorCode.ES_SEARCH_FAIL);
         }
     }
 
