@@ -25,7 +25,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
  * 사용자 검색 요청을 처리하고, 벡터 유사도 및 텍스트 검색을 통해
  * 결과를 반환하는 서비스 구현체
  *
- * @modified 2025-04-24
+ * @modified 2025-04-28
  * @since 2025-04-22
  */
 @Service
@@ -65,6 +65,7 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     @Override
     public AutoCompleteStringList getSymptomAutoComplete(String q) {
+        log("getSymptomAutoComplete() 메서드 호출, 검색어: " + q);
         return new AutoCompleteStringList(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
     }
 
@@ -79,6 +80,7 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @modified 2025-04-27
      */
     public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
+        log("searchDrugNamesBySymptom() 메서드 호출, 검색어: " + q);
         List<SearchResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
             .stream()
             .map(SymptomMapper::toResponse)

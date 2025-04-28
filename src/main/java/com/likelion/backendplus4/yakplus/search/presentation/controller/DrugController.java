@@ -23,7 +23,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 /**
  * 약품 검색 API 엔드포인트를 제공하는 컨트롤러 클래스
  *
- * @modified 2025-04-25
+ * @modified 2025-04-28
  * @since 2025-04-22
  */
 @RestController
@@ -55,10 +55,11 @@ public class DrugController {
      * @return 자동완성 추천 키워드 리스트를 감싼 ApiResponse
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-27
+     * @modified 2025-04-28
      */
     @GetMapping("/autocomplete/symptom")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(@RequestParam String q) {
+        log("drugController 요청 수신" + q);
         AutoCompleteStringList results = searchDrugUseCase.getSymptomAutoComplete(q);
         return ApiResponse.success(results);
     }
@@ -68,17 +69,18 @@ public class DrugController {
      *
      * @param q     검색어 프리픽스
      * @param page  조회할 페이지 번호 (기본값 0)
-     * @param size  페이지 당 문서 수 (기본값 20)
+     * @param size  페이지 당 문서 수 (기본값 10)
      * @return 약품명 리스트를 담은 ApiResponse
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-27
+     * @modified 2025-04-28
      */
     @GetMapping("/search/symptom")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchNames(
         @RequestParam String q,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "20") int size) {
+        @RequestParam(defaultValue = "10") int size) {
+        log("drugController 요청 수신" + q);
         SearchResponseList drugSymptomList = searchDrugUseCase.searchDrugNamesBySymptom(q, page, size);
         return ApiResponse.success(drugSymptomList);
     }

@@ -90,6 +90,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * */
     @Override
     public List<String> getSymptomAutoCompleteResponse(String q) {
+        log("getSymptomAutoCompleteResponse() 메서드 호출, 검색어: " + q);
         SearchResponse<Void> resp;
         try {
             resp = esClient.search(s -> s
@@ -106,6 +107,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                     )
                 , Void.class);
         } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
             throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
         }
 
@@ -130,6 +132,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @throws SearchException 검색 중 오류 발생 시
      */
     public List<DrugSymptom> searchDocsBySymptom(String q, int page, int size) {
+        log("searchDocsBySymptom() 메서드 호출, 검색어: " + q);
         try {
             SearchResponse<DrugSymptomDocument> resp = esClient.search(s -> s
                     .index("eedoc")
@@ -148,6 +151,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                 .map(SymptomMapper::toDomain)
                 .toList();
         } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
             throw new SearchException(SearchErrorCode.ES_SEARCH_FAIL);
         }
     }
