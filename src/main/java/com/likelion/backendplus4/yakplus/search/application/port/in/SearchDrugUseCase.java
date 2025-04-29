@@ -14,8 +14,8 @@ public interface SearchDrugUseCase {
 
     AutoCompleteStringList getDrugNameAutoComplete(String q);
 
-    SearchResponseList searchDrugNamesByItemName(String q, int page, int size);
+    SearchResponseList searchDrugByDrugName(String q, int page, int size);
 
-    SearchResponseList searchDrugNamesBySymptom(String q, int page, int size);
+    SearchResponseList searchDrugBySymptom(String q, int page, int size);
 
 }

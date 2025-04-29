@@ -10,6 +10,7 @@ import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.resp
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +48,6 @@ public class DrugController {
         return ApiResponse.success(searchDrugUseCase.search(searchRequest));
     }
 
-
     /**
      * 사용자 입력 키워드를 바탕으로 증상 자동완성 추천 결과를 조회합니다.
      *
@@ -57,48 +57,54 @@ public class DrugController {
      * @since 2025-04-24
      * @modified 2025-04-28
      */
-    @GetMapping("/autocomplete/symptom")
-    public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(@RequestParam String q) {
-        log("drugController 요청 수신" + q);
-        AutoCompleteStringList results = searchDrugUseCase.getSymptomAutoComplete(q);
+    @GetMapping("/autocomplete/{type}")
+    public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(
+        @PathVariable String type,
+        @RequestParam String q) {
+
+        log("drugController 요청 수신 - type: " + type + ", query: " + q);
+
+        AutoCompleteStringList results;
+
+        switch (type.toLowerCase()) {
+            case "symptom" -> results = searchDrugUseCase.getSymptomAutoComplete(q);
+            case "name" -> results = searchDrugUseCase.getDrugNameAutoComplete(q);
+            default -> throw new IllegalArgumentException("지원하지 않는 자동완성 타입입니다: " + type);
+        }
+
         return ApiResponse.success(results);
     }
 
     /**
-     * 증상 키워드 검색으로 매칭되는 약품명 리스트를 반환합니다.
+     * 증상 또는 약품명 검색을 통해 매칭되는 약품 리스트를 조회합니다.
      *
+     * @param type  검색 타입 (symptom 또는 name)
      * @param q     검색어 프리픽스
      * @param page  조회할 페이지 번호 (기본값 0)
      * @param size  페이지 당 문서 수 (기본값 10)
-     * @return 약품명 리스트를 담은 ApiResponse
-     * @author 박찬병
+     * @return 검색 결과를 담은 ApiResponse
+     * @throws IllegalArgumentException 지원하지 않는 검색 타입 입력 시 예외 발생
      * @since 2025-04-24
-     * @modified 2025-04-28
+     * @modified 2025-04-30
      */
-    @GetMapping("/search/symptom")
-    public ResponseEntity<ApiResponse<SearchResponseList>> searchNames(
+    @GetMapping("/search/{type}")
+    public ResponseEntity<ApiResponse<SearchResponseList>> searchDrugs(
+        @PathVariable String type,
         @RequestParam String q,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
-        log("drugController 요청 수신" + q);
-        SearchResponseList drugSymptomList = searchDrugUseCase.searchDrugNamesBySymptom(q, page, size);
-        return ApiResponse.success(drugSymptomList);
-    }
 
-    // 1) 아이템명 자동완성
-    @GetMapping("/autocomplete/name")
-    public ResponseEntity<ApiResponse<AutoCompleteStringList>> autoName(@RequestParam String q) {
-        return ApiResponse.success(searchDrugUseCase.getDrugNameAutoComplete(q));
-    }
+        log("drugController 요청 수신 - type: " + type + ", query: " + q);
 
-    // 2) 아이템명 검색
-    @GetMapping("/search/name")
-    public ResponseEntity<ApiResponse<SearchResponseList>> byName(
-        @RequestParam String q,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        return ApiResponse.success(searchDrugUseCase.searchDrugNamesByItemName(q, page, size));
+        SearchResponseList result;
+
+        switch (type.toLowerCase()) {
+            case "symptom" -> result = searchDrugUseCase.searchDrugBySymptom(q, page, size);
+            case "name" -> result = searchDrugUseCase.searchDrugByDrugName(q, page, size);
+            default -> throw new IllegalArgumentException("지원하지 않는 검색 타입입니다: " + type);
+        }
+
+        return ApiResponse.success(result);
     }
 
 }

@@ -78,7 +78,7 @@ public class DrugSearcher implements SearchDrugUseCase {
     }
 
     @Override
-    public SearchResponseList searchDrugNamesByItemName(String q, int page, int size) {
+    public SearchResponseList searchDrugByDrugName(String q, int page, int size) {
         Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsByItemName(q, page, size);
 
         return new SearchResponseList(
@@ -99,7 +99,7 @@ public class DrugSearcher implements SearchDrugUseCase {
      * @since 2025-04-25
      * @modified 2025-04-27
      */
-    public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
+    public SearchResponseList searchDrugBySymptom(String q, int page, int size) {
         log("searchDrugNamesBySymptom() 메서드 호출, 검색어: " + q);
         Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size);
         return new SearchResponseList(
