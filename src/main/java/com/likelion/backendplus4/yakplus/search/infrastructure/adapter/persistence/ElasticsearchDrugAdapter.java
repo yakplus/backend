@@ -10,7 +10,7 @@ import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErr
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugNameDocument;
 import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
-import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugDocumentMapper;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMapper;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
@@ -40,8 +40,9 @@ import java.util.Objects;
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
  * DrugSearchRepositoryPort를 구현하여 Elasticsearch 원격 호출을 캡슐화합니다.
  *
- * @modified 2025-04-27
+ * @modified 2025-04-29
  * 25.04.27 - searchBySymptoms() 메서드 리팩토링
+ * 25.04.29 - 약품명 검색 기능 추가
  * @since 2025-04-22
  */
 @Component
@@ -154,7 +155,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
             List<DrugSearchDomain> results = resp.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
-                .map(DrugDocumentMapper::toDomainBySymptomDocument)
+                .map(DrugMapper::toDomainBySymptomDocument)
                 .toList();
 
             long totalHits = resp.hits().total().value();
@@ -170,10 +171,20 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         }
     }
 
-    // 1) 아이템명 자동완성
+    /**
+     * 사용자가 입력한 키워드를 바탕으로 Elasticsearch Completion Suggest API를 호출하여
+     * drugNameSuggester 필드에서 약품명 자동완성 추천 단어 리스트를 반환합니다.
+     *
+     * @param q 사용자 입력 문자열
+     * @return 자동완성 추천 키워드 리스트
+     * @throws SearchException 자동완성 API 호출 실패 시 발생
+     * @author 박찬병
+     * @since 2025-04-28
+     * @modified 2025-04-29
+     */
     @Override
     public List<String> getDrugNameAutoCompleteResponse(String q) {
-        log("getDrugNameAutoCompleteResponse() called, prefix: " + q);
+        log("getDrugNameAutoCompleteResponse() 메서드 호출, 검색어: " + q);
         try {
             SearchResponse<Void> resp = esClient.search(s -> s
                     .index("drug_name")
@@ -191,17 +202,29 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
             );
             var options = resp.suggest().get("name_sugg").get(0).completion().options();
             return options.stream()
-                        .map(CompletionSuggestOption::text)
-                        .distinct()
-                        .toList();
+                .map(CompletionSuggestOption::text)
+                .distinct()
+                .toList();
         } catch (IOException e) {
             throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
         }
     }
 
-    // 2) 아이템명 매칭 문서 검색
+    /**
+     * 검색어에 매칭되는 약품명 문서 리스트를 Elasticsearch에서 조회합니다.
+     *
+     * matchPhrasePrefix 쿼리를 사용하여 약품명 필드에서 접두어 기반 검색을 수행합니다.
+     *
+     * @param q    검색어 프리픽스 (사용자 입력)
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 조회할 문서 수
+     * @return 검색된 약품명 문서 리스트를 담은 Page 객체 (DrugSearchDomain)
+     * @throws SearchException 검색 중 오류 발생 시
+     * @since 2025-04-28
+     * @modified 2025-04-29
+     */
     @Override
-    public Page<DrugSearchDomain> searchDocsByItemName(String q, int page, int size) {
+    public Page<DrugSearchDomain> searchDocsByDrugName(String q, int page, int size) {
         log("searchDocsByItemName() called, query: " + q);
         try {
             SearchResponse<DrugNameDocument> resp = esClient.search(s -> s
@@ -220,7 +243,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
             List<DrugSearchDomain> results = resp.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
-                .map(DrugDocumentMapper::toDomainByNameDocument)
+                .map(DrugMapper::toDomainByNameDocument)
                 .toList();
 
             long totalHits = resp.hits().total().value();

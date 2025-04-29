@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.yakplus.search.presentation.controller;
 
+import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
+import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
@@ -24,7 +26,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 /**
  * 약품 검색 API 엔드포인트를 제공하는 컨트롤러 클래스
  *
- * @modified 2025-04-28
+ * @modified 2025-04-29
  * @since 2025-04-22
  */
 @RestController
@@ -49,13 +51,18 @@ public class DrugController {
     }
 
     /**
-     * 사용자 입력 키워드를 바탕으로 증상 자동완성 추천 결과를 조회합니다.
+     * 사용자 입력 키워드를 바탕으로 자동완성 추천 결과를 조회합니다.
      *
-     * @param q 검색어 프리픽스
+     * 검색 타입(type)에 따라 증상 자동완성 또는 약품명 자동완성 결과를 반환합니다.
+     *
+     * @param type 자동완성 타입 (symptom 또는 name)
+     * @param q    검색어 프리픽스
      * @return 자동완성 추천 키워드 리스트를 감싼 ApiResponse
+     * @throws SearchException 지원하지 않는 타입 입력 시 예외 발생
+     *
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-28
+     * @modified 2025-04-29
      */
     @GetMapping("/autocomplete/{type}")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(
@@ -69,7 +76,7 @@ public class DrugController {
         switch (type.toLowerCase()) {
             case "symptom" -> results = searchDrugUseCase.getSymptomAutoComplete(q);
             case "name" -> results = searchDrugUseCase.getDrugNameAutoComplete(q);
-            default -> throw new IllegalArgumentException("지원하지 않는 자동완성 타입입니다: " + type);
+            default -> throw new SearchException(SearchErrorCode.INVALID_SEARCH_TYPE);
         }
 
         return ApiResponse.success(results);
@@ -83,9 +90,9 @@ public class DrugController {
      * @param page  조회할 페이지 번호 (기본값 0)
      * @param size  페이지 당 문서 수 (기본값 10)
      * @return 검색 결과를 담은 ApiResponse
-     * @throws IllegalArgumentException 지원하지 않는 검색 타입 입력 시 예외 발생
+     * @throws SearchException 지원하지 않는 검색 타입 입력 시 예외 발생
      * @since 2025-04-24
-     * @modified 2025-04-30
+     * @modified 2025-04-29
      */
     @GetMapping("/search/{type}")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchDrugs(
@@ -101,7 +108,7 @@ public class DrugController {
         switch (type.toLowerCase()) {
             case "symptom" -> result = searchDrugUseCase.searchDrugBySymptom(q, page, size);
             case "name" -> result = searchDrugUseCase.searchDrugByDrugName(q, page, size);
-            default -> throw new IllegalArgumentException("지원하지 않는 검색 타입입니다: " + type);
+            default -> throw new SearchException(SearchErrorCode.INVALID_SEARCH_TYPE);
         }
 
         return ApiResponse.success(result);

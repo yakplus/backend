@@ -7,13 +7,13 @@ import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persisten
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 
 /**
- * 증상 관련 Document를 다루는 매퍼 클래스입니다.
+ * 증상 관련 객체를 다루는 매퍼 클래스입니다.
  *
  * @author 박찬병
  * @since 2025-04-25
- * @modified 2025-04-25
+ * @modified 2025-04-29
  */
-public class DrugDocumentMapper {
+public class DrugMapper {
 
 	/**
 	 * ES 색인용 Document를 도메인 모델(DrugSymptom)로 변환합니다.
