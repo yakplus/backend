@@ -85,4 +85,20 @@ public class DrugController {
         return ApiResponse.success(drugSymptomList);
     }
 
+    // 1) 아이템명 자동완성
+    @GetMapping("/autocomplete/name")
+    public ResponseEntity<ApiResponse<AutoCompleteStringList>> autoName(@RequestParam String q) {
+        return ApiResponse.success(searchDrugUseCase.getDrugNameAutoComplete(q));
+    }
+
+    // 2) 아이템명 검색
+    @GetMapping("/search/name")
+    public ResponseEntity<ApiResponse<SearchResponseList>> byName(
+        @RequestParam String q,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.success(searchDrugUseCase.searchDrugNamesByItemName(q, page, size));
+    }
+
 }

@@ -1,7 +1,8 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
-import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
+import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugDocumentMapper;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
@@ -14,6 +15,8 @@ import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.resp
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -69,6 +72,23 @@ public class DrugSearcher implements SearchDrugUseCase {
         return new AutoCompleteStringList(drugSearchRepositoryPort.getSymptomAutoCompleteResponse(q));
     }
 
+    @Override
+    public AutoCompleteStringList getDrugNameAutoComplete(String q) {
+        return new AutoCompleteStringList(drugSearchRepositoryPort.getDrugNameAutoCompleteResponse(q));
+    }
+
+    @Override
+    public SearchResponseList searchDrugNamesByItemName(String q, int page, int size) {
+        Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsByItemName(q, page, size);
+
+        return new SearchResponseList(
+            drugPage.getContent().stream()
+                .map(DrugDocumentMapper::toResponse)
+                .toList(),
+            drugPage.getTotalElements()
+        );
+    }
+
     /**
      * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
      *
@@ -81,12 +101,13 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
         log("searchDrugNamesBySymptom() 메서드 호출, 검색어: " + q);
-        List<SearchResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
-            .stream()
-            .map(SymptomMapper::toResponse)
-            .toList();
-
-        return new SearchResponseList(drugSymptomResponses);
+        Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size);
+        return new SearchResponseList(
+            drugPage.getContent().stream()
+                .map(DrugDocumentMapper::toResponse)
+                .toList(),
+            drugPage.getTotalElements()
+        );
     }
 
     /**

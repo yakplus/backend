@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DrugSymptom {
+public class DrugSearchDomain {
     private Long drugId;
     private String drugName;
     private List<String> efficacy;
