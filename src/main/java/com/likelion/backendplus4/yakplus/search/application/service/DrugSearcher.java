@@ -89,7 +89,6 @@ public class DrugSearcher implements SearchDrugUseCase {
         return new AutoCompleteStringList(drugSearchRepositoryPort.getDrugNameAutoCompleteResponse(q));
     }
 
-
     /**
      * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
      *
@@ -181,7 +180,8 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     private List<SearchResponse> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
         log("searchDrugs() 메서드 호출, 검색어: " + searchRequest.query());
-        List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
+        List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings,
+            searchRequest.size(), searchRequest.page() * searchRequest.size());
         log("searchDrugs() 메서드 완료, 검색어: " + searchRequest.query() + ", 검색 결과 개수: " + drugs.size());
         return mapToDrugDomain(drugs);
     }
@@ -199,12 +199,13 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     private List<SearchResponse> mapToDrugDomain(List<Drug> drugs) {
         return drugs.stream()
-                .map(d -> new SearchResponse(
-                        d.getDrugId(),
-                        d.getDrugName(),
-                        d.getCompany(),
-                        d.getEfficacy(),
-                        d.getImageUrl()
-                ))
-                .collect(Collectors.toList());
+            .map(d -> new SearchResponse(
+                d.getDrugId(),
+                d.getDrugName(),
+                d.getCompany(),
+                d.getEfficacy(),
+                d.getImageUrl()
+            ))
+            .collect(Collectors.toList());
     }
+}

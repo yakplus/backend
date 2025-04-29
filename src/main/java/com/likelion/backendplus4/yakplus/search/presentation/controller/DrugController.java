@@ -71,13 +71,12 @@ public class DrugController {
 
         log("drugController 요청 수신 - type: " + type + ", query: " + q);
 
-        AutoCompleteStringList results;
+        SearchType searchType = SearchType.from(type);
 
-        switch (type.toLowerCase()) {
-            case "symptom" -> results = searchDrugUseCase.getSymptomAutoComplete(q);
-            case "name" -> results = searchDrugUseCase.getDrugNameAutoComplete(q);
-            default -> throw new SearchException(SearchErrorCode.INVALID_SEARCH_TYPE);
-        }
+        AutoCompleteStringList results = switch (searchType) {
+            case SYMPTOM -> searchDrugUseCase.getSymptomAutoComplete(q);
+            case NAME -> searchDrugUseCase.getDrugNameAutoComplete(q);
+        };
 
         return ApiResponse.success(results);
     }
@@ -91,6 +90,7 @@ public class DrugController {
      * @param size  페이지 당 문서 수 (기본값 10)
      * @return 검색 결과를 담은 ApiResponse
      * @throws SearchException 지원하지 않는 검색 타입 입력 시 예외 발생
+     * @author 박찬병
      * @since 2025-04-24
      * @modified 2025-04-29
      */
@@ -103,15 +103,14 @@ public class DrugController {
 
         log("drugController 요청 수신 - type: " + type + ", query: " + q);
 
-        SearchResponseList result;
+        SearchType searchType = SearchType.from(type);
 
-        switch (type.toLowerCase()) {
-            case "symptom" -> result = searchDrugUseCase.searchDrugBySymptom(q, page, size);
-            case "name" -> result = searchDrugUseCase.searchDrugByDrugName(q, page, size);
-            default -> throw new SearchException(SearchErrorCode.INVALID_SEARCH_TYPE);
-        }
+        SearchResponseList results = switch (searchType) {
+            case SYMPTOM -> searchDrugUseCase.searchDrugBySymptom(q, page, size);
+            case NAME -> searchDrugUseCase.searchDrugByDrugName(q, page, size);
+        };
 
-        return ApiResponse.success(result);
+        return ApiResponse.success(results);
     }
 
 }
