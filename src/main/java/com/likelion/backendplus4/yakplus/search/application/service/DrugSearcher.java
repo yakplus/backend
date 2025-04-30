@@ -1,7 +1,8 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
-import com.likelion.backendplus4.yakplus.search.infrastructure.support.SymptomMapper;
+import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMapper;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRepositoryPort;
@@ -14,6 +15,8 @@ import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.resp
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +28,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
  * 사용자 검색 요청을 처리하고, 벡터 유사도 및 텍스트 검색을 통해
  * 결과를 반환하는 서비스 구현체
  *
- * @modified 2025-04-28
+ * @modified 2025-04-29
  * @since 2025-04-22
  */
 @Service
@@ -70,23 +73,66 @@ public class DrugSearcher implements SearchDrugUseCase {
     }
 
     /**
+     * 사용자 입력 문자열을 바탕으로 약품명 자동완성 추천 키워드를 조회합니다.
+     *
+     * Elasticsearch Suggest API를 활용하여 약품명과 관련된 자동완성 키워드 리스트를 반환합니다.
+     *
+     * @param q 사용자 입력 문자열
+     * @return 자동완성 추천 결과 리스트 DTO (AutoCompleteStringList)
+     * @author 박찬병
+     * @since 2025-04-29
+     * @modified 2025-04-30
+     */
+    @Override
+    public AutoCompleteStringList getDrugNameAutoComplete(String q) {
+        log("getDrugNameAutoComplete() 메서드 호출, 검색어: " + q);
+        return new AutoCompleteStringList(drugSearchRepositoryPort.getDrugNameAutoCompleteResponse(q));
+    }
+
+    /**
      * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
      *
      * @param q     검색어 프리픽스
      * @param page  조회할 페이지 번호
      * @param size  페이지 당 문서 수
-     * @return 중복 제거된 약품명 리스트
+     * @return 약품 리스트와 총 검색 결과 수를 포함하는 SearchResponseList DTO
+     * @author 박찬병
      * @since 2025-04-25
      * @modified 2025-04-27
      */
-    public SearchResponseList searchDrugNamesBySymptom(String q, int page, int size) {
-        log("searchDrugNamesBySymptom() 메서드 호출, 검색어: " + q);
-        List<SearchResponse> drugSymptomResponses = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size)
-            .stream()
-            .map(SymptomMapper::toResponse)
-            .toList();
+    public SearchResponseList searchDrugBySymptom(String q, int page, int size) {
+        log("searchDrugBySymptom() 메서드 호출, 검색어: " + q);
+        Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsBySymptom(q, page, size);
+        return new SearchResponseList(
+            drugPage.getContent().stream()
+                .map(DrugMapper::toResponse)
+                .toList(),
+            drugPage.getTotalElements()
+        );
+    }
 
-        return new SearchResponseList(drugSymptomResponses);
+    /**
+     * 주어진 약품명 키워드로 약품 리스트를 검색하여 반환합니다.
+     *
+     * @param q     검색어 프리픽스
+     * @param page  조회할 페이지 번호
+     * @param size  페이지 당 조회할 문서 수
+     * @return 약품 리스트와 총 검색 결과 수를 포함하는 SearchResponseList DTO
+     * @author 박찬병
+     * @since 2025-04-29
+     * @modified 2025-04-30
+     */
+    @Override
+    public SearchResponseList searchDrugByDrugName(String q, int page, int size) {
+        log("searchDrugByDrugName() 메서드 호출, 검색어: " + q);
+        Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsByDrugName(q, page, size);
+
+        return new SearchResponseList(
+            drugPage.getContent().stream()
+                .map(DrugMapper::toResponse)
+                .toList(),
+            drugPage.getTotalElements()
+        );
     }
 
     /**
@@ -134,7 +180,8 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     private List<SearchResponse> searchDrugs(SearchRequest searchRequest, float[] embeddings) {
         log("searchDrugs() 메서드 호출, 검색어: " + searchRequest.query());
-        List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings, searchRequest.size(), searchRequest.page() * searchRequest.size());
+        List<Drug> drugs = drugSearchRepositoryPort.searchBySymptoms(searchRequest.query(), embeddings,
+            searchRequest.size(), searchRequest.page() * searchRequest.size());
         log("searchDrugs() 메서드 완료, 검색어: " + searchRequest.query() + ", 검색 결과 개수: " + drugs.size());
         return mapToDrugDomain(drugs);
     }
@@ -152,13 +199,13 @@ public class DrugSearcher implements SearchDrugUseCase {
      */
     private List<SearchResponse> mapToDrugDomain(List<Drug> drugs) {
         return drugs.stream()
-                .map(d -> new SearchResponse(
-                        d.getDrugId(),
-                        d.getDrugName(),
-                        d.getCompany(),
-                        d.getEfficacy(),
-                        d.getImageUrl()
-                ))
-                .collect(Collectors.toList());
+            .map(d -> new SearchResponse(
+                d.getDrugId(),
+                d.getDrugName(),
+                d.getCompany(),
+                d.getEfficacy(),
+                d.getImageUrl()
+            ))
+            .collect(Collectors.toList());
     }
 }

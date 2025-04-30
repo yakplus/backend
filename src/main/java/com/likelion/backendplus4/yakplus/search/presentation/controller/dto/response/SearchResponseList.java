@@ -8,6 +8,7 @@ import java.util.List;
  * @modified 2025-04-28
  */
 public record SearchResponseList(
-	List<SearchResponse> searchResponseList
+	List<SearchResponse> searchResponseList,
+	long totalResponseCount
 ) {
 }
