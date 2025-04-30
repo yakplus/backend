@@ -1,6 +1,17 @@
 package com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper;
 
-import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.entity.GovDrugEntity;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
+import com.likelion.backendplus4.yakplus.drug.domain.model.vo.Material;
+import com.likelion.backendplus4.yakplus.drug.domain.model.vo.MaterialInfo;
+import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity.GovDrugEntity;
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 
 public class DrugDataMapper {
@@ -20,6 +31,5 @@ public class DrugDataMapper {
 			.imageUrl(e.getImageUrl())
 			.build();
 	}
-
 
 }

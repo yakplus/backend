@@ -26,4 +26,7 @@ public class Drug {
     private List<String> usage;
     private Map<String, List<String>> precaution;
     private String imageUrl;
+    private LocalDate cancelDate;
+    private String cancelName;
+    private boolean isHerbal;
 }

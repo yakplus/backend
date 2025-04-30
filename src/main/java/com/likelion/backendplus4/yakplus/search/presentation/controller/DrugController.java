@@ -6,6 +6,7 @@ import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.resp
 import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.DetailSearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
 
@@ -34,7 +35,6 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 @RequiredArgsConstructor
 public class DrugController {
     private final SearchDrugUseCase searchDrugUseCase;
-
     /**
      * 약품 검색 요청을 처리하여 검색 결과를 반환한다.
      *
@@ -111,6 +111,11 @@ public class DrugController {
         };
 
         return ApiResponse.success(results);
+    }
+
+    @GetMapping("/search/detail/{id}")
+    public ResponseEntity<ApiResponse<DetailSearchResponse>> searchDetail(@PathVariable Long id){
+        return ApiResponse.success(searchDrugUseCase.searchByDrugId(id));
     }
 
 }

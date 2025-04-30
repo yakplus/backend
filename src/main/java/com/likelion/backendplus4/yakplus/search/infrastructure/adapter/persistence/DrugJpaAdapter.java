@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.drug.infrastructure.adapter;
+package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence;
 
 
 import org.springframework.data.domain.Page;
@@ -6,8 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
-import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.jpa.GovDrugJpaRepository;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.DrugDataMapper;
+import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRdbRepositoryPort;
+import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
+import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
+import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.jpa.GovDrugJpaRepository;
+import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +25,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class GovDrugJpaAdapter {
+public class DrugJpaAdapter implements DrugSearchRdbRepositoryPort {
 
 	private final GovDrugJpaRepository drugJpaRepository;
 
@@ -35,8 +40,15 @@ public class GovDrugJpaAdapter {
 	 * @modified 2025-04-25
 	 *
 	 */
+	@Override
 	public Page<GovDrug> findAllDrugs(Pageable pageable) {
 		return drugJpaRepository.findAll(pageable)
 			.map(DrugDataMapper::toDomainFromEntity);
+	}
+
+	@Override
+	public Drug findById(Long id) {
+		return DrugMapper.toDomainFromEntity(
+			drugJpaRepository.findById(id).orElseThrow(() -> new SearchException(SearchErrorCode.RDB_SEARCH_ERROR)));
 	}
 }
