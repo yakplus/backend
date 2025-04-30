@@ -40,6 +40,15 @@ public class DrugSearcher implements SearchDrugUseCase {
     private final EmbeddingPort embeddingPort;
     private final DrugSearchRdbRepositoryPort drugSearchRdbRepositoryPort;
 
+    /**
+     * 의약품 ID를 통해 상세 정보를 조회합니다.
+     *
+     * @param drugId 조회할 의약품의 고유 ID
+     * @return 변환된 상세 검색 응답 객체
+     *
+     * @author 함예정
+     * @since 2025-04-30
+     */
     @Override
     public DetailSearchResponse searchByDrugId(Long drugId){
         Drug drug = drugSearchRdbRepositoryPort.findById(drugId);

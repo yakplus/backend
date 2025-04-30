@@ -113,6 +113,15 @@ public class DrugController {
         return ApiResponse.success(results);
     }
 
+    /**
+     * 의약품 ID를 통해 상세 정보를 조회하는 API입니다.
+     *
+     * @param id 조회할 의약품의 고유 ID
+     * @return 의약품 상세 정보가 담긴 ApiResponse
+     *
+     * @author 함예정
+     * @since 2025-04-30
+     */
     @GetMapping("/search/detail/{id}")
     public ResponseEntity<ApiResponse<DetailSearchResponse>> searchDetail(@PathVariable Long id){
         return ApiResponse.success(searchDrugUseCase.searchByDrugId(id));

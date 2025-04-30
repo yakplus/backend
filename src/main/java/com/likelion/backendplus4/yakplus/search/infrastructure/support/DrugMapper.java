@@ -77,6 +77,15 @@ public class DrugMapper {
 			.build();
 	}
 
+	/**
+	 * Drug 도메인 객체를 DetailSearchResponse DTO로 변환합니다.
+	 *
+	 * @param d 변환할 Drug 객체
+	 * @return DetailSearchResponse 응답 객체
+	 *
+	 * @author 함예정
+	 * @since 2025-04-30
+	 */
 	public static DetailSearchResponse toDetailResponse(Drug d) {
 		return DetailSearchResponse.builder()
 			.drugId(d.getDrugId())
@@ -97,6 +106,15 @@ public class DrugMapper {
 			.build();
 	}
 
+	/**
+	 * GovDrugEntity 엔티티 객체를 Drug 도메인 객체로 변환합니다.
+	 *
+	 * @param d 변환할 GovDrugEntity 객체
+	 * @return Drug 도메인 객체
+	 *
+	 * @author 함예정
+	 * @since 2025-04-30
+	 */
 	public static Drug toDomainFromEntity(GovDrugEntity d) {
 		return Drug.builder()
 			.drugId(d.getId())
@@ -117,6 +135,15 @@ public class DrugMapper {
 			.build();
 	}
 
+	/**
+	 * JSON 문자열을 List 객체로 파싱합니다.
+	 *
+	 * @param str JSON 형식의 문자열
+	 * @return 파싱된 List 객체, 실패 시 null 반환
+	 *
+	 * @author 함예정
+	 * @since 2025-04-30
+	 */
 	private static List toListFromString(String str){
 		try {
 			return objectMapper.readValue(str, List.class);
@@ -126,6 +153,15 @@ public class DrugMapper {
 		}
 	}
 
+	/**
+	 * JSON 문자열을 Map 객체로 파싱합니다.
+	 *
+	 * @param str JSON 형식의 문자열
+	 * @return 파싱된 Map 객체, 실패 시 null 반환
+	 *
+	 * @author 함예정
+	 * @since 2025-04-30
+	 */
 	private static Map toMapFromString(String str){
 		try {
 			return objectMapper.readValue(str, Map.class);
