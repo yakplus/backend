@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.common.util.log.LogLevel;
+import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRdbRepositoryPort;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
 import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMapper;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
@@ -11,6 +12,7 @@ import com.likelion.backendplus4.yakplus.search.common.exception.SearchException
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.request.SearchRequest;
+import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.DetailSearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
 
@@ -36,7 +38,22 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 public class DrugSearcher implements SearchDrugUseCase {
     private final DrugSearchRepositoryPort drugSearchRepositoryPort;
     private final EmbeddingPort embeddingPort;
+    private final DrugSearchRdbRepositoryPort drugSearchRdbRepositoryPort;
 
+    /**
+     * 의약품 ID를 통해 상세 정보를 조회합니다.
+     *
+     * @param drugId 조회할 의약품의 고유 ID
+     * @return 변환된 상세 검색 응답 객체
+     *
+     * @author 함예정
+     * @since 2025-04-30
+     */
+    @Override
+    public DetailSearchResponse searchByDrugId(Long drugId){
+        Drug drug = drugSearchRdbRepositoryPort.findById(drugId);
+        return DrugMapper.toDetailResponse(drug);
+    }
     /**
      * 검색어 유효성 검사, 임베딩 생성, ES 검색 수행 후
      * 리스트로 매핑하여 반환한다.

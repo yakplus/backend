@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.entity;
+package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity;
 
 import java.time.LocalDate;
 
@@ -57,4 +57,13 @@ public class GovDrugEntity {
 
 	@Column(name= "IMG_URL")
 	private String imageUrl;
+
+	@Column(name = "CANCEL_DATE")
+	private LocalDate cancelDate;
+
+	@Column(name = "CANCEL_NAME")
+	private String cancelName;
+
+	@Column(name = "IS_HERBAL")
+	private boolean isHerbal;
 }

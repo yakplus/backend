@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.jpa.GovDrugJpaRepository;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.jpa.GovDrugJpaRepository;
 import com.likelion.backendplus4.yakplus.drug.infrastructure.support.mapper.DrugDataMapper;
 import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 
