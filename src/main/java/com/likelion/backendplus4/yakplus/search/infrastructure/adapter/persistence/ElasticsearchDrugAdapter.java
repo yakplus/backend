@@ -48,7 +48,7 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
-    private static final String SEARCH_INDEX = "drugs";
+    private static final String SEARCH_INDEX = "test-gpt";
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
