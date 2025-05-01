@@ -17,4 +17,8 @@ public interface DrugSearchRepositoryPort {
     List<String> getDrugNameAutoCompleteResponse(String q);
 
     Page<DrugSearchDomain> searchDocsByDrugName(String q, int page, int size);
+
+    List<String> getIngredientAutoCompleteResponse(String q);
+
+    Page<DrugSearchDomain> searchDocsByIngredient(String q, int page, int size);
 }

@@ -12,7 +12,7 @@ public enum SearchErrorCode implements ErrorCode {
     RDB_SEARCH_ERROR(HttpStatus.NO_CONTENT, 430003, "검색 결과가 없습니다"),
     EMBEDDING_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 440001, "임베딩 API 호출 실패"),
     ES_SUGGEST_SEARCH_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 440002, "검색어 자동완성에 실패했습니다."),
-    ES_SEARCH_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 440002, "증상 검색에 실패했습니다.");
+    ES_SEARCH_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 440002, "키워드 검색에 실패했습니다.");
 
     private final HttpStatus status;
     private final int code;

@@ -107,6 +107,26 @@ public class DrugSearcher implements SearchDrugUseCase {
     }
 
     /**
+     * 사용자 입력 문자열을 바탕으로 성분명 자동완성 추천 키워드를 조회합니다.
+     *
+     * Elasticsearch Suggest API를 활용하여 성분명과 관련된 자동완성 키워드 리스트를 반환합니다.
+     *
+     * @param q 사용자 입력 문자열 (성분 키워드 프리픽스)
+     * @return 자동완성 추천 결과 리스트 DTO (AutoCompleteStringList)
+     * @throws SearchException 자동완성 API 호출 실패 시 발생
+     * @author 박찬병
+     * @since 2025-05-01
+     * @modified 2025-05-01
+     */
+    @Override
+    public AutoCompleteStringList getIngredientAutoComplete(String q) {
+        log("getIngredientAutoComplete() 메서드 호출, 검색어: " + q);
+        return new AutoCompleteStringList(
+            drugSearchRepositoryPort.getIngredientAutoCompleteResponse(q)
+        );
+    }
+
+    /**
      * 주어진 증상 키워드로 검색하여 약품명 리스트를 반환합니다.
      *
      * @param q     검색어 프리픽스
@@ -143,6 +163,35 @@ public class DrugSearcher implements SearchDrugUseCase {
     public SearchResponseList searchDrugByDrugName(String q, int page, int size) {
         log("searchDrugByDrugName() 메서드 호출, 검색어: " + q);
         Page<DrugSearchDomain> drugPage = drugSearchRepositoryPort.searchDocsByDrugName(q, page, size);
+
+        return new SearchResponseList(
+            drugPage.getContent().stream()
+                .map(DrugMapper::toResponse)
+                .toList(),
+            drugPage.getTotalElements()
+        );
+    }
+
+    /**
+     * 주어진 성분명 키워드로 약품 리스트를 검색하여 반환합니다.
+     *
+     * match 쿼리를 사용하여 ingredientNames 필드에서 키워드 기반 검색을 수행하고,
+     * 검색 결과를 도메인 → DTO 형태로 매핑하여 반환합니다.
+     *
+     * @param q    검색어 프리픽스 (성분명)
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 조회할 문서 수
+     * @return 약품 리스트와 총 검색 결과 수를 포함하는 SearchResponseList DTO
+     * @throws SearchException 검색 중 오류 발생 시
+     * @author 박찬병
+     * @since 2025-05-01
+     * @modified 2025-05-01
+     */
+    @Override
+    public SearchResponseList searchDrugByIngredient(String q, int page, int size) {
+        log("searchDrugByIngredient() 메서드 호출, 검색어: " + q);
+        Page<DrugSearchDomain> drugPage =
+            drugSearchRepositoryPort.searchDocsByIngredient(q, page, size);
 
         return new SearchResponseList(
             drugPage.getContent().stream()

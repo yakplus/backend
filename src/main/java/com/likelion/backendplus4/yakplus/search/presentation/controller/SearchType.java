@@ -5,7 +5,8 @@ import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErr
 
 public enum SearchType {
 	SYMPTOM,
-	NAME;
+	NAME,
+	INGREDIENT;
 
 	public static SearchType from(String type) {
 		try {

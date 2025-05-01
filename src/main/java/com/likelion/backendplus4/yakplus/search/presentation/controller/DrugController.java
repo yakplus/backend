@@ -53,7 +53,7 @@ public class DrugController {
     /**
      * 사용자 입력 키워드를 바탕으로 자동완성 추천 결과를 조회합니다.
      *
-     * 검색 타입(type)에 따라 증상 자동완성 또는 약품명 자동완성 결과를 반환합니다.
+     * 검색 타입(type)에 따라 키워드 자동완성 결과를 반환합니다.
      *
      * @param type 자동완성 타입 (symptom 또는 name)
      * @param q    검색어 프리픽스
@@ -62,7 +62,7 @@ public class DrugController {
      *
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-29
+     * @modified 2025-05-01
      */
     @GetMapping("/autocomplete/{type}")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocomplete(
@@ -76,13 +76,14 @@ public class DrugController {
         AutoCompleteStringList results = switch (searchType) {
             case SYMPTOM -> searchDrugUseCase.getSymptomAutoComplete(q);
             case NAME -> searchDrugUseCase.getDrugNameAutoComplete(q);
+            case INGREDIENT -> searchDrugUseCase.getIngredientAutoComplete(q);
         };
 
         return ApiResponse.success(results);
     }
 
     /**
-     * 증상 또는 약품명 검색을 통해 매칭되는 약품 리스트를 조회합니다.
+     * 키워드 검색을 통해 매칭되는 약품 리스트를 조회합니다.
      *
      * @param type  검색 타입 (symptom 또는 name)
      * @param q     검색어 프리픽스
@@ -92,7 +93,7 @@ public class DrugController {
      * @throws SearchException 지원하지 않는 검색 타입 입력 시 예외 발생
      * @author 박찬병
      * @since 2025-04-24
-     * @modified 2025-04-29
+     * @modified 2025-05-01
      */
     @GetMapping("/search/{type}")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchDrugs(
@@ -108,6 +109,7 @@ public class DrugController {
         SearchResponseList results = switch (searchType) {
             case SYMPTOM -> searchDrugUseCase.searchDrugBySymptom(q, page, size);
             case NAME -> searchDrugUseCase.searchDrugByDrugName(q, page, size);
+            case INGREDIENT -> searchDrugUseCase.searchDrugByIngredient(q, page, size);
         };
 
         return ApiResponse.success(results);

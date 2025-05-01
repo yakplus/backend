@@ -8,8 +8,7 @@ import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchR
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.common.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
-import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugNameDocument;
-import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugKeywordDocument;
 import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMapper;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -97,32 +96,31 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
     @Override
     public List<String> getSymptomAutoCompleteResponse(String q) {
         log("getSymptomAutoCompleteResponse() 메서드 호출, 검색어: " + q);
-        SearchResponse<Void> resp;
         try {
-            resp = esClient.search(s -> s
-                    .index("eedoc")
+            SearchResponse<Void> resp = esClient.search(s -> s
+                    .index("symptom_dictionary")
                     .suggest(su -> su
                         .suggesters("symp_sugg", sg -> sg
                             .prefix(q)
                             .completion(c -> c
                                 .field("symptomSuggester")
-                                .analyzer("symptom_search_autocomplete")  // ← 이 줄만 추가
+                                .analyzer("symptom_autocomplete")
                                 .size(10)
                             )
                         )
                     )
                 , Void.class);
+
+            // 파싱
+            return resp.suggest().get("symp_sugg")
+                .get(0).completion().options().stream()
+                .map(CompletionSuggestOption::text)
+                .toList();
+
         } catch (IOException e) {
             log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
             throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
         }
-
-        // Suggest 파싱
-        return resp.suggest().get("symp_sugg")
-            .get(0).completion().options().stream()
-            .map(CompletionSuggestOption::text)
-            .distinct()
-            .toList();
     }
 
     /**
@@ -140,22 +138,22 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
     public Page<DrugSearchDomain> searchDocsBySymptom(String q, int page, int size) {
         log("searchDocsBySymptom() 메서드 호출, 검색어: " + q);
         try {
-            SearchResponse<DrugSymptomDocument> resp = esClient.search(s -> s
-                    .index("eedoc")
+            SearchResponse<DrugKeywordDocument> resp = esClient.search(s -> s
+                    .index("drug_keyword")
                     .from(page * size)
                     .size(size)
                     .query(qb -> qb
                         .match(m -> m
-                            .field("efficacy")   // only_nouns analyzer 적용된 필드
+                            .field("efficacy_list")   // only_nouns analyzer 적용된 필드
                             .query(q)           // 사용자가 입력한 q 값
                         )
                     )
-                , DrugSymptomDocument.class);
+                , DrugKeywordDocument.class);
 
             List<DrugSearchDomain> results = resp.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
-                .map(DrugMapper::toDomainBySymptomDocument)
+                .map(DrugMapper::toDomainByDocument)
                 .toList();
 
             long totalHits = resp.hits().total().value();
@@ -187,14 +185,14 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         log("getDrugNameAutoCompleteResponse() 메서드 호출, 검색어: " + q);
         try {
             SearchResponse<Void> resp = esClient.search(s -> s
-                    .index("drug_name")
+                    .index("drug_keyword")
                     .suggest(su -> su
                         .suggesters("name_sugg", sg -> sg
                             .prefix(q)
                             .completion(c -> c
                                 .field("drugNameSuggester")
                                 .analyzer("drugName_autocomplete")
-                                .size(20)
+                                .size(10)
                             )
                         )
                     ),
@@ -227,8 +225,8 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
     public Page<DrugSearchDomain> searchDocsByDrugName(String q, int page, int size) {
         log("searchDocsByItemName() called, query: " + q);
         try {
-            SearchResponse<DrugNameDocument> resp = esClient.search(s -> s
-                    .index("drug_name")
+            SearchResponse<DrugKeywordDocument> resp = esClient.search(s -> s
+                    .index("drug_keyword")
                     .from(page * size)
                     .size(size)
                     .query(qb -> qb
@@ -237,13 +235,13 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                             .query(q)
                         )
                     ),
-                DrugNameDocument.class
+                DrugKeywordDocument.class
             );
 
             List<DrugSearchDomain> results = resp.hits().hits().stream()
                 .map(Hit::source)
                 .filter(Objects::nonNull)
-                .map(DrugMapper::toDomainByNameDocument)
+                .map(DrugMapper::toDomainByDocument)
                 .toList();
 
             long totalHits = resp.hits().total().value();
@@ -254,6 +252,96 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                 totalHits
             );
         } catch (IOException e) {
+            throw new SearchException(SearchErrorCode.ES_SEARCH_FAIL);
+        }
+    }
+
+    /**
+     * 사용자가 입력한 키워드를 바탕으로 Elasticsearch Completion Suggest API를 호출하여
+     * ingredientNameSuggester 필드에서 자동완성 추천 단어 리스트를 반환합니다.
+     *
+     * @param q 검색어 프리픽스
+     * @return 자동완성 추천 성분명 리스트
+     * @throws SearchException 자동완성 API 호출 실패 시 발생
+     * @author 박찬병
+     * @since 2025-05-01
+     * @modified 2025-05-01
+     */
+    @Override
+    public List<String> getIngredientAutoCompleteResponse(String q) {
+        log("getIngredientAutoCompleteResponse() 메서드 호출, 검색어: " + q);
+        try {
+            SearchResponse<Void> resp = esClient.search(s -> s
+                    .index("drug_keyword")
+                    .suggest(su -> su
+                        .suggesters("ingr_sugg", sg -> sg
+                            .prefix(q)
+                            .completion(c -> c
+                                .field("ingredientNameSuggester")
+                                .analyzer("drugName_autocomplete")
+                                .size(10)
+                            )
+                        )
+                    )
+                , Void.class);
+
+            return resp.suggest()
+                .get("ingr_sugg")
+                .get(0)
+                .completion()
+                .options()
+                .stream()
+                .map(CompletionSuggestOption::text)
+                .distinct()
+                .toList();
+
+        } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 자동완성 실패: query = " + q, e);
+            throw new SearchException(SearchErrorCode.ES_SUGGEST_SEARCH_FAIL);
+        }
+    }
+
+    /**
+     * 검색어에 매칭되는 성분명을 포함한 약품 문서 리스트를 Elasticsearch에서 조회합니다.
+     *
+     * match 쿼리를 사용하여 ingredientNames 필드에서 키워드 기반 검색을 수행합니다.
+     *
+     * @param q    검색어 키워드 (사용자 입력)
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 조회할 문서 수
+     * @return 검색된 약품 도메인 리스트를 담은 Page 객체
+     * @throws SearchException 검색 중 오류 발생 시
+     * @author 박찬병
+     * @since 2025-05-01
+     * @modified 2025-05-01
+     */
+    @Override
+    public Page<DrugSearchDomain> searchDocsByIngredient(String q, int page, int size) {
+        log("searchDocsByIngredient() 메서드 호출, 검색어: " + q);
+        try {
+            SearchResponse<DrugKeywordDocument> resp = esClient.search(s -> s
+                    .index("drug_keyword")
+                    .from(page * size)
+                    .size(size)
+                    .query(qb -> qb
+                        .match(m -> m
+                            .field("ingredientName")
+                            .query(q)
+                        )
+                    )
+                , DrugKeywordDocument.class);
+
+            List<DrugSearchDomain> results = resp.hits().hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(DrugMapper::toDomainByDocument)
+                .toList();
+
+            long totalHits = resp.hits().total().value();
+            return new PageImpl<>(results, PageRequest.of(page, size), totalHits);
+
+        } catch (IOException e) {
+            log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + q, e);
             throw new SearchException(SearchErrorCode.ES_SEARCH_FAIL);
         }
     }
