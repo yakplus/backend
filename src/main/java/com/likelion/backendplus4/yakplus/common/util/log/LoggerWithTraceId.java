@@ -76,7 +76,9 @@ public class LoggerWithTraceId {
      */
     private static String makeTraceId() {
         String traceId = MDC.get("traceId");
-        validateTraceId(traceId);
+        if (traceId == null || traceId.trim().isEmpty()) {
+            return "no-trace";
+        }
         return traceId;
     }
 
