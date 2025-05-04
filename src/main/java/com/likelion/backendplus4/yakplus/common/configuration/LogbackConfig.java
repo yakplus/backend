@@ -13,10 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+
+import com.likelion.backendplus4.yakplus.common.util.log.LogUtil;
 
 /**
  * 로깅 설정을 위한 설정 클래스
@@ -54,7 +60,6 @@ public class LogbackConfig {
 
         configureRootLogger(context, consoleAppender, fileAppender);
     }
-
     /**
      * LoggerContext를 초기화하는 메서드
      *

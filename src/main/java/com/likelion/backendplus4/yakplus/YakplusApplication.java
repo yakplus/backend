@@ -4,11 +4,11 @@ import com.likelion.backendplus4.yakplus.common.configuration.LogbackConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import lombok.RequiredArgsConstructor;
+
 @SpringBootApplication
 public class YakplusApplication {
     public static void main(String[] args) {
-        LogbackConfig logbackConfig = new LogbackConfig();
-        logbackConfig.configure();
         SpringApplication.run(YakplusApplication.class, args);
     }
 }
