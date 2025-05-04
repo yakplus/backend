@@ -48,7 +48,7 @@ public class DrugJpaAdapter implements DrugSearchRdbRepositoryPort {
         Drug drug = DrugMapper.toDomainFromEntity(
                 drugJpaRepository.findById(id).orElseThrow(
                         () -> new SearchException(SearchErrorCode.RDB_SEARCH_ERROR)));
-
+        Map<String, List<String>> precaution = drug.getPrecaution();
         if (precaution != null) {
             drug.setPrecaution(sortByLeadingNumberIfPresent(precaution));
         }
