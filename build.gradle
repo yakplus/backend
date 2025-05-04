@@ -49,6 +49,9 @@ dependencies {
     //ai
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M5'
 
+    // Swagger 설치
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
     // build.gradle
     if (project.hasProperty('env') && project.env == 'test') {
         dependencies {
