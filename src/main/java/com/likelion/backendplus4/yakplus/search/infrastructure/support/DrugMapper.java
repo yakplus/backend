@@ -3,14 +3,22 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.support;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.yakplus.search.application.port.out.dto.SearchByKeywordParams;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
 import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugKeywordDocument;
 import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity.DrugEntity;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.DetailSearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
+
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
 /**
  * 증상 관련 객체를 다루는 매퍼 클래스입니다.
@@ -40,6 +48,30 @@ public class DrugMapper {
 				.imageUrl(symptomDocument.getImageUrl())
 				.build();
 	}
+
+
+	/**
+	 * Elasticsearch 응답을 Page<DrugSearchDomain> 형태로 변환합니다.
+	 *
+	 * @param resp    Elasticsearch 응답 객체
+	 * @param request 검색 요청 정보
+	 * @return 변환된 페이지 객체
+	 * @author 박찬병
+	 * @since 2025-04-24
+	 * @modified 2025-05-04
+	 */
+	public static Page<DrugSearchDomain> toPageResponse(
+		co.elastic.clients.elasticsearch.core.SearchResponse<DrugKeywordDocument> resp, SearchByKeywordParams request) {
+		List<DrugSearchDomain> results = resp.hits().hits().stream()
+			.map(Hit::source)
+			.filter(Objects::nonNull)
+			.map(DrugMapper::toDomainByDocument)
+			.toList();
+
+		long totalHits = Objects.requireNonNull(resp.hits().total()).value();
+		return new PageImpl<>(results, PageRequest.of(request.getFrom(), request.getSize()), totalHits);
+	}
+
 
 
 	/**
