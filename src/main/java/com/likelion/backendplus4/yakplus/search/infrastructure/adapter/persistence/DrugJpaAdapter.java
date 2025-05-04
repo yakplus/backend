@@ -10,6 +10,8 @@ import com.likelion.backendplus4.yakplus.search.infrastructure.support.DrugMappe
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
