@@ -1,5 +1,14 @@
 package com.likelion.backendplus4.yakplus.common.configuration;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -9,182 +18,171 @@ import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import ch.qos.logback.core.util.FileSize;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-
-import com.likelion.backendplus4.yakplus.common.util.log.LogUtil;
 
 /**
  * 로깅 설정을 위한 설정 클래스
- * 
+ *
  * @modified 2025-04-18
  * @since 2025-04-16
  */
 @Configuration
 public class LogbackConfig {
-    @Value("${log.rolling.directory}")
-    private String LOG_DIRECTORY;
-    @Value("${log.rolling.file-name}")
-    private String LOG_FILE_NAME;
-    @Value("${log.rolling.pattern}")
-    private String LOG_PATTERN;
-    @Value("${log.rolling.max-history}")
-    private int MAX_HISTORY;
-    @Value("${log.rolling.total-size-cap}")
-    private String TOTAL_SIZE_CAP;
+	@Value("${log.rolling.directory}")
+	private String LOG_DIRECTORY;
+	@Value("${log.rolling.file-name}")
+	private String LOG_FILE_NAME;
+	@Value("${log.rolling.pattern}")
+	private String LOG_PATTERN;
+	@Value("${log.rolling.max-history}")
+	private int MAX_HISTORY;
+	@Value("${log.rolling.total-size-cap}")
+	private String TOTAL_SIZE_CAP;
 
-    /**
-     * 로깅 설정을 초기화하는 메서드
-     *
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    @PostConstruct
-    public void configure() {
-        LoggerContext context = initializeLoggerContext();
-        createLogDirectory();
+	/**
+	 * 로깅 설정을 초기화하는 메서드
+	 *
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	@PostConstruct
+	public void configure() {
+		LoggerContext context = initializeLoggerContext();
+		createLogDirectory();
 
-        ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender(context);
-        FileAppender<ILoggingEvent> fileAppender = createFileAppender(context);
+		ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender(context);
+		FileAppender<ILoggingEvent> fileAppender = createFileAppender(context);
 
-        configureRootLogger(context, consoleAppender, fileAppender);
-    }
-    /**
-     * LoggerContext를 초기화하는 메서드
-     *
-     * @return LoggerContext 초기화된 로거 컨텍스트
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private LoggerContext initializeLoggerContext() {
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        context.reset();
-        return context;
-    }
+		configureRootLogger(context, consoleAppender, fileAppender);
+	}
 
-    /**
-     * 로그 디렉토리를 생성하는 메서드
-     *
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private void createLogDirectory() {
-        Path logPath = Paths.get(LOG_DIRECTORY);
-        try {
-            if (!Files.exists(logPath)) {
-                Files.createDirectories(logPath);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("로그 디렉토리 생성 실패", e);
-        }
-    }
+	/**
+	 * LoggerContext를 초기화하는 메서드
+	 *
+	 * @return LoggerContext 초기화된 로거 컨텍스트
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private LoggerContext initializeLoggerContext() {
+		LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
+		context.reset();
+		return context;
+	}
 
-    /**
-     * 콘솔 어펜더를 생성하는 메서드
-     *
-     * @param context LoggerContext 로거 컨텍스트
-     * @return ConsoleAppender 생성된 콘솔 어펜더
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext context) {
-        ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
-        appender.setContext(context);
-        appender.setEncoder(createEncoder(context));
-        appender.start();
-        return appender;
-    }
+	/**
+	 * 로그 디렉토리를 생성하는 메서드
+	 *
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private void createLogDirectory() {
+		Path logPath = Paths.get(LOG_DIRECTORY);
+		try {
+			if (!Files.exists(logPath)) {
+				Files.createDirectories(logPath);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("로그 디렉토리 생성 실패", e);
+		}
+	}
 
-    /**
-     * 파일 어펜더를 생성하는 메서드
-     *
-     * @param context LoggerContext 로거 컨텍스트
-     * @return FileAppender 생성된 파일 어펜더
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private FileAppender<ILoggingEvent> createFileAppender(LoggerContext context) {
-        FileAppender<ILoggingEvent> appender = new FileAppender<>();
-        appender.setContext(context);
-        appender.setFile(LOG_DIRECTORY + "/" + LOG_FILE_NAME);
-        appender.setAppend(true);
-        appender.setEncoder(createEncoder(context));
+	/**
+	 * 콘솔 어펜더를 생성하는 메서드
+	 *
+	 * @param context LoggerContext 로거 컨텍스트
+	 * @return ConsoleAppender 생성된 콘솔 어펜더
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private ConsoleAppender<ILoggingEvent> createConsoleAppender(LoggerContext context) {
+		ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
+		appender.setContext(context);
+		appender.setEncoder(createEncoder(context));
+		appender.start();
+		return appender;
+	}
 
-        TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = createRollingPolicy(context, appender);
-        rollingPolicy.start();
+	/**
+	 * 파일 어펜더를 생성하는 메서드
+	 *
+	 * @param context LoggerContext 로거 컨텍스트
+	 * @return FileAppender 생성된 파일 어펜더
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private FileAppender<ILoggingEvent> createFileAppender(LoggerContext context) {
+		FileAppender<ILoggingEvent> appender = new FileAppender<>();
+		appender.setContext(context);
+		appender.setFile(LOG_DIRECTORY + "/" + LOG_FILE_NAME);
+		appender.setAppend(true);
+		appender.setEncoder(createEncoder(context));
 
-        appender.start();
-        return appender;
-    }
+		TimeBasedRollingPolicy<ILoggingEvent> rollingPolicy = createRollingPolicy(context, appender);
+		rollingPolicy.start();
 
-    /**
-     * 패턴 레이아웃 인코더를 생성하는 메서드
-     *
-     * @param context LoggerContext 로거 컨텍스트
-     * @return PatternLayoutEncoder 생성된 패턴 레이아웃 인코더
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private PatternLayoutEncoder createEncoder(LoggerContext context) {
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        encoder.setContext(context);
-        encoder.setPattern(LOG_PATTERN);
-        encoder.start();
-        return encoder;
-    }
+		appender.start();
+		return appender;
+	}
 
-    /**
-     * 롤링 정책을 생성하는 메서드
-     *
-     * @param context LoggerContext 로거 컨텍스트
-     * @param parent FileAppender 부모 파일 어펜더
-     * @return TimeBasedRollingPolicy 생성된 롤링 정책
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private TimeBasedRollingPolicy<ILoggingEvent> createRollingPolicy(LoggerContext context, FileAppender<ILoggingEvent> parent) {
-        TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<>();
-        policy.setContext(context);
-        policy.setParent(parent);
-        policy.setFileNamePattern(LOG_DIRECTORY + "/" + LOG_FILE_NAME.replace(".log", ".%d{yyyy-MM-dd}.log"));
-        policy.setMaxHistory(MAX_HISTORY);
-        policy.setTotalSizeCap(FileSize.valueOf(TOTAL_SIZE_CAP));
-        return policy;
-    }
+	/**
+	 * 패턴 레이아웃 인코더를 생성하는 메서드
+	 *
+	 * @param context LoggerContext 로거 컨텍스트
+	 * @return PatternLayoutEncoder 생성된 패턴 레이아웃 인코더
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private PatternLayoutEncoder createEncoder(LoggerContext context) {
+		PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+		encoder.setContext(context);
+		encoder.setPattern(LOG_PATTERN);
+		encoder.start();
+		return encoder;
+	}
 
-    /**
-     * 루트 로거를 설정하는 메서드
-     *
-     * @param context LoggerContext 로거 컨텍스트
-     * @param consoleAppender ConsoleAppender 콘솔 어펜더
-     * @param fileAppender FileAppender 파일 어펜더
-     * @author 정안식
-     * @since 2025-04-16
-     */
-    private void configureRootLogger(LoggerContext context, ConsoleAppender<ILoggingEvent> consoleAppender, FileAppender<ILoggingEvent> fileAppender) {
-        Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        if (logger instanceof ch.qos.logback.classic.Logger) {
-            ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) logger;
-            rootLogger.setLevel(Level.INFO);
-            rootLogger.addAppender(consoleAppender);
-            rootLogger.addAppender(fileAppender);
-        }
-    }
+	/**
+	 * 롤링 정책을 생성하는 메서드
+	 *
+	 * @param context LoggerContext 로거 컨텍스트
+	 * @param parent FileAppender 부모 파일 어펜더
+	 * @return TimeBasedRollingPolicy 생성된 롤링 정책
+	 * @author 정안식
+	 * @modified 2025-04-18
+	 * @since 2025-04-16
+	 */
+	private TimeBasedRollingPolicy<ILoggingEvent> createRollingPolicy(LoggerContext context,
+		FileAppender<ILoggingEvent> parent) {
+		TimeBasedRollingPolicy<ILoggingEvent> policy = new TimeBasedRollingPolicy<>();
+		policy.setContext(context);
+		policy.setParent(parent);
+		policy.setFileNamePattern(LOG_DIRECTORY + "/" + LOG_FILE_NAME.replace(".log", ".%d{yyyy-MM-dd}.log"));
+		policy.setMaxHistory(MAX_HISTORY);
+		policy.setTotalSizeCap(FileSize.valueOf(TOTAL_SIZE_CAP));
+		return policy;
+	}
+
+	/**
+	 * 루트 로거를 설정하는 메서드
+	 *
+	 * @param context LoggerContext 로거 컨텍스트
+	 * @param consoleAppender ConsoleAppender 콘솔 어펜더
+	 * @param fileAppender FileAppender 파일 어펜더
+	 * @author 정안식
+	 * @since 2025-04-16
+	 */
+	private void configureRootLogger(LoggerContext context, ConsoleAppender<ILoggingEvent> consoleAppender,
+		FileAppender<ILoggingEvent> fileAppender) {
+		Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		if (logger instanceof ch.qos.logback.classic.Logger) {
+			ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger)logger;
+			rootLogger.setLevel(Level.INFO);
+			rootLogger.addAppender(consoleAppender);
+			rootLogger.addAppender(fileAppender);
+		}
+	}
 }
