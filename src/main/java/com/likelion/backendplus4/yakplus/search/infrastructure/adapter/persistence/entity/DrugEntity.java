@@ -1,7 +1,7 @@
-package com.likelion.backendplus4.yakplus.drug.infrastructure.adapter.persistence.repository.entity;
+package com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -12,34 +12,24 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-import java.time.LocalDate;
 
 @Entity
-@Builder
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Table(name = "gov_drug_detail")
-public class GovDrugDetailEntity {
-
+@Table(name="GOV_DRUG_RAW_DATA")
+public class DrugEntity {
 	@Id
-	@JsonProperty("ITEM_SEQ")
-	@Column( name= "ITEM_SEQ")
-	private Long drugId;
+	@Column(name="ITEM_SEQ")
+	private Long id;
 
-	@JsonProperty("ITEM_NAME")
 	@Column( name= "ITEM_NAME", columnDefinition = "TEXT")
 	private String drugName;
 
-	@JsonProperty("ENTP_NAME")
 	@Column( name= "ENTP_NAME")
 	private String company;
 
-	@JsonProperty("ITEM_PERMIT_DATE")
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd")
 	@Column( name= "ITEM_PERMIT_DATE")
 	private LocalDate permitDate;
 
@@ -53,7 +43,6 @@ public class GovDrugDetailEntity {
 	@Column(name = "STORAGE_METHOD", columnDefinition = "TEXT")
 	private String storeMethod;
 
-	@JsonProperty("VALID_TERM")
 	@Column(name = "VALID_TERM")
 	private String validTerm;
 
@@ -66,24 +55,15 @@ public class GovDrugDetailEntity {
 	@Column(name = "NB_DOC_DATA", columnDefinition = "JSON")
 	private String precaution;
 
-	@JsonCreator
-	public GovDrugDetailEntity(@JsonProperty("ETC_OTC_CODE") String drugType) {
-		this.isGeneral = !"전문의약품".equals(drugType);
-	}
+	@Column(name= "IMG_URL")
+	private String imageUrl;
 
-	public void changeMaterialInfo(String materialInfo){
-		this.materialInfo = materialInfo;
-	}
+	@Column(name = "CANCEL_DATE")
+	private LocalDate cancelDate;
 
-	public void changeUsage(String usage) {
-		this.usage = usage;
-	}
+	@Column(name = "CANCEL_NAME")
+	private String cancelName;
 
-	public void changeEfficacy(String efficacy) {
-		this.efficacy = efficacy;
-	}
-
-	public void changePrecaution(String precaution) {
-		this.precaution = precaution;
-	}
+	@Column(name = "IS_HERBAL")
+	private boolean isHerbal;
 }

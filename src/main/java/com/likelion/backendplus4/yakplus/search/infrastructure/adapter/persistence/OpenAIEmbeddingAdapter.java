@@ -25,7 +25,6 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
  * @modified 2025-04-24
  * @since 2025-04-22
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OpenAIEmbeddingAdapter implements EmbeddingPort {

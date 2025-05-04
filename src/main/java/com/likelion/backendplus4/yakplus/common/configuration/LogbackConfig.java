@@ -11,6 +11,7 @@ import ch.qos.logback.core.util.FileSize;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Files;
@@ -25,11 +26,16 @@ import java.nio.file.Paths;
  */
 @Configuration
 public class LogbackConfig {
-    private static final String LOG_DIRECTORY = "logs";
-    private static final String LOG_FILE_NAME = "like-lion.log";
-    private static final String LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n";
-    private static final int MAX_HISTORY = 30;
-    private static final String TOTAL_SIZE_CAP = "1GB";
+    @Value("${log.rolling.directory}")
+    private String LOG_DIRECTORY;
+    @Value("${log.rolling.file-name}")
+    private String LOG_FILE_NAME;
+    @Value("${log.rolling.pattern}")
+    private String LOG_PATTERN;
+    @Value("${log.rolling.max-history}")
+    private int MAX_HISTORY;
+    @Value("${log.rolling.total-size-cap}")
+    private String TOTAL_SIZE_CAP;
 
     /**
      * 로깅 설정을 초기화하는 메서드

@@ -7,8 +7,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Elasticsearch 검색 결과를 담는 도메인 모델 클래스
+ *
+ * @since 2025-05-03
+ */
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class DrugSearchDomain {

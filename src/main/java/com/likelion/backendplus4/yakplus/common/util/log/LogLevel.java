@@ -10,12 +10,12 @@ import org.slf4j.Logger;
  */
 public enum LogLevel {
     /**
-     * INFO 레벨 로그
+     * TRACE 레벨 로그
      */
-    INFO {
+    TRACE {
         @Override
         public void log(Logger logger, String traceId, String message) {
-            logMessage(logger::info, traceId, message);
+            logMessage(logger::trace, traceId, message);
         }
     },
     /**
@@ -25,6 +25,24 @@ public enum LogLevel {
         @Override
         public void log(Logger logger, String traceId, String message) {
             logMessage(logger::debug, traceId, message);
+        }
+    },
+    /**
+     * INFO 레벨 로그
+     */
+    INFO {
+        @Override
+        public void log(Logger logger, String traceId, String message) {
+            logMessage(logger::info, traceId, message);
+        }
+    },
+    /**
+     * WARN 레벨 로그
+     */
+    WARN {
+        @Override
+        public void log(Logger logger, String traceId, String message) {
+            logMessage(logger::warn, traceId, message);
         }
     },
     /**
