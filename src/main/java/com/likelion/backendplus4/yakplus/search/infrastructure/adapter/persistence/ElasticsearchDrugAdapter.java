@@ -27,6 +27,8 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -50,9 +52,6 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 @Component
 @RequiredArgsConstructor
 public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
-
-    private static final String KEYWORD_INDEX_NAME = "drug_keyword";
-    private static final String DICTIONARY_INDEX_NAME = "symptom_dictionary";
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -109,7 +108,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      */
     @Override
     public List<String> getSymptomAutoCompleteResponse(String q) {
-        return getAutoCompleteResponse(DICTIONARY_INDEX_NAME, "symp_sugg", "symptomSuggester", "symptom_autocomplete", q);
+        return getAutoCompleteResponse("symptom_dictionary", "symp_sugg", "symptomSuggester", "symptom_autocomplete", q);
     }
 
     /**
@@ -128,7 +127,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      */
     @Override
     public List<String> getDrugNameAutoCompleteResponse(String q) {
-        return getAutoCompleteResponse(KEYWORD_INDEX_NAME, "name_sugg", "drugNameSuggester", "drugName_autocomplete", q);
+        return getAutoCompleteResponse("drug_keyword", "name_sugg", "drugNameSuggester", "drugName_autocomplete", q);
     }
 
     /**
@@ -147,7 +146,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      */
     @Override
     public List<String> getIngredientAutoCompleteResponse(String q) {
-        return getAutoCompleteResponse(KEYWORD_INDEX_NAME, "ingr_sugg", "ingredientNameSuggester", "drugName_autocomplete", q);
+        return getAutoCompleteResponse("drug_keyword", "ingr_sugg", "ingredientNameSuggester", "drugName_autocomplete", q);
     }
 
     /**
@@ -368,7 +367,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         log("searchWithMatch() 호출 - field: " + fieldName + ", query: " + request.getQuery());
         try {
             SearchResponse<DrugKeywordDocument> resp = esClient.search(s -> s
-                            .index(KEYWORD_INDEX_NAME)
+                            .index("drug_keyword")
                             .from(request.getFrom() * request.getSize())
                             .size(request.getSize())
                             .query(qb -> qb
@@ -379,7 +378,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                             ),
                     DrugKeywordDocument.class);
 
-            return DrugMapper.toPageResponse(resp, request);
+            return toPageResponse(resp, request);
 
         } catch (IOException e) {
             log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + request.getQuery(), e);
@@ -402,7 +401,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         log("searchWithMatchPrefix() 호출 - field: " + fieldName + ", query: " + request.getQuery());
         try {
             SearchResponse<DrugKeywordDocument> resp = esClient.search(s -> s
-                            .index(KEYWORD_INDEX_NAME)
+                            .index("drug_keyword")
                             .from(request.getFrom() * request.getSize())
                             .size(request.getSize())
                             .query(qb -> qb
@@ -413,7 +412,7 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
                             ),
                     DrugKeywordDocument.class);
 
-            return DrugMapper.toPageResponse(resp, request);
+            return toPageResponse(resp, request);
 
         } catch (IOException e) {
             log(LogLevel.ERROR, "Elasticsearch 검색 실패: query = " + request.getQuery(), e);
@@ -421,5 +420,25 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         }
     }
 
+    /**
+     * Elasticsearch 응답을 Page<DrugSearchDomain> 형태로 변환합니다.
+     *
+     * @param resp    Elasticsearch 응답 객체
+     * @param request 검색 요청 정보
+     * @return 변환된 페이지 객체
+     * @author 박찬병
+     * @since 2025-04-24
+     * @modified 2025-05-04
+     */
+    private Page<DrugSearchDomain> toPageResponse(SearchResponse<DrugKeywordDocument> resp, SearchByKeywordParams request) {
+        List<DrugSearchDomain> results = resp.hits().hits().stream()
+                .map(Hit::source)
+                .filter(Objects::nonNull)
+                .map(DrugMapper::toDomainByDocument)
+                .toList();
+
+        long totalHits = resp.hits().total().value();
+        return new PageImpl<>(results, PageRequest.of(request.getFrom(), request.getSize()), totalHits);
+    }
 
 }

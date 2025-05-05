@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.yakplus.search.application.service;
 
 import com.likelion.backendplus4.yakplus.search.application.port.out.DrugSearchRdbRepositoryPort;
+import com.likelion.backendplus4.yakplus.search.application.port.out.mapper.SearchByNaturalParamsMapper;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomainNatural;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchNatural;

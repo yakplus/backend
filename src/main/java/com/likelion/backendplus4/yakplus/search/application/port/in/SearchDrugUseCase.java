@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.yakplus.search.application.port.in;
 
+
 import com.likelion.backendplus4.yakplus.search.common.exception.SearchException;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchNatural;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;

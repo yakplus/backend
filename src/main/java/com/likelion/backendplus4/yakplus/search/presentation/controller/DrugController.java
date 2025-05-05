@@ -4,7 +4,6 @@ import com.likelion.backendplus4.yakplus.response.ApiResponse;
 import com.likelion.backendplus4.yakplus.search.application.port.in.SearchDrugUseCase;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchNatural;
 import com.likelion.backendplus4.yakplus.search.infrastructure.support.natural.SearchNaturalMapper;
-import com.likelion.backendplus4.yakplus.search.presentation.controller.docs.DrugControllerDocs;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.AutoCompleteStringList;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.DetailSearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponseList;
@@ -23,7 +22,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
 @RestController
 @RequestMapping("/drugs")
 @RequiredArgsConstructor
-public class DrugController implements DrugControllerDocs {
+public class DrugController {
     private final SearchDrugUseCase searchDrugUseCase;
 
     /**
@@ -38,7 +37,6 @@ public class DrugController implements DrugControllerDocs {
      * - GET 메소드로 변경, 이제 Service에 넘길 때 SearchRequest를 사용하지 않음
      * @since 2025-04-22
      */
-    @Override
     @GetMapping("/search/natural")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchNatural(
             @RequestParam("q") String query,
@@ -58,7 +56,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/autocomplete/symptom")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocompleteSymptom(@RequestParam String q) {
         log("drugController 요청 수신 - symptom autocomplete, query: " + q);
@@ -74,7 +71,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/autocomplete/name")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocompleteDrugName(@RequestParam String q) {
         log("drugController 요청 수신 - drug name autocomplete, query: " + q);
@@ -90,7 +86,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/autocomplete/ingredient")
     public ResponseEntity<ApiResponse<AutoCompleteStringList>> autocompleteIngredient(@RequestParam String q) {
         log("drugController 요청 수신 - ingredient autocomplete, query: " + q);
@@ -108,7 +103,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/search/symptom")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchBySymptom(
             @RequestParam("q") String query,
@@ -130,7 +124,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/search/name")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchByName(
             @RequestParam("q") String query,
@@ -152,7 +145,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 박찬병
      * @since 2025-05-03
      */
-    @Override
     @GetMapping("/search/ingredient")
     public ResponseEntity<ApiResponse<SearchResponseList>> searchByIngredient(
             @RequestParam("q") String query,
@@ -172,7 +164,6 @@ public class DrugController implements DrugControllerDocs {
      * @author 함예정
      * @since 2025-04-30
      */
-    @Override
     @GetMapping("/search/detail/{id}")
     public ResponseEntity<ApiResponse<DetailSearchResponse>> searchDetail(@PathVariable Long id) {
         return ApiResponse.success(searchDrugUseCase.searchByDrugId(id));
