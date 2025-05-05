@@ -83,24 +83,6 @@ public class LoggerWithTraceId {
     }
 
     /**
-     * TraceId를 검증하는 메서드
-     *
-     * @param traceId String 검증할 TraceId
-     * @throws IllegalStateException 유효하지 않은 TraceId
-     * @author 정안식
-     * @modified 2025-04-18
-     * @since 2025-04-16
-     */
-    private static void validateTraceId(String traceId) {
-        if (traceId == null) {
-            throw new IllegalStateException("TraceId가 null입니다. MDC에 traceId가 설정되어 있는지 확인하세요.");
-        }
-        if (traceId.trim().isEmpty()) {
-            throw new IllegalStateException("TraceId가 빈 문자열입니다. 유효한 traceId를 설정해주세요.");
-        }
-    }
-
-    /**
      * 호출한 클래스의 이름을 가져오는 메서드
      *
      * @return String 호출한 클래스명

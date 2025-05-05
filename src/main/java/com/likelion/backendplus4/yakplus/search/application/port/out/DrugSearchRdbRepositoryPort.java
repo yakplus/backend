@@ -1,9 +1,5 @@
 package com.likelion.backendplus4.yakplus.search.application.port.out;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import com.likelion.backendplus4.yakplus.drug.domain.model.GovDrug;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 
 /**
@@ -13,16 +9,13 @@ import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
  * @since 2025-04-30
  */
 public interface DrugSearchRdbRepositoryPort {
-	Page<GovDrug> findAllDrugs(Pageable pageable);
-
-	/**
-	 * ID를 기반으로 단일 의약품 정보를 조회합니다.
-	 *
-	 * @param id 조회할 의약품의 고유 ID
-	 * @return 조회된 의약품 객체
-	 *
-	 * @author 함예정
-	 * @since 2025-04-30
-	 */
-	Drug findById(Long id);
+    /**
+     * ID를 기반으로 단일 의약품 정보를 조회합니다.
+     *
+     * @param id 조회할 의약품의 고유 ID
+     * @return 조회된 의약품 객체
+     * @author 함예정
+     * @since 2025-04-30
+     */
+    Drug findById(Long id);
 }

@@ -1,12 +1,11 @@
 package com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response;
 
+import com.likelion.backendplus4.yakplus.search.domain.model.Material;
+import lombok.Builder;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-
-import com.likelion.backendplus4.yakplus.drug.domain.model.vo.Material;
-
-import lombok.Builder;
 
 /**
  * 검색 결과 정보 DTO
@@ -20,16 +19,16 @@ public record DetailSearchResponse(
         Long drugId,
         String drugName,
         String company,
-		List<String> efficacy,
-		LocalDate permitDate,
-		boolean isGeneral,
-		List<Material> materialInfo,
-		String storeMethod,
-		String validTerm,
-		List<String> usage,
+        List<String> efficacy,
+        LocalDate permitDate,
+        boolean isGeneral,
+        List<Material> materialInfo,
+        String storeMethod,
+        String validTerm,
+        List<String> usage,
         Map<String, List<String>> precaution,
         String imageUrl,
-		LocalDate cancelDate,
-		String cancelName,
-		boolean isHerbal) {
+        LocalDate cancelDate,
+        String cancelName,
+        boolean isHerbal) {
 }

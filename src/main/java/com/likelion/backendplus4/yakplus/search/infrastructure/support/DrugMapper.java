@@ -3,25 +3,33 @@ package com.likelion.backendplus4.yakplus.search.infrastructure.support;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.yakplus.search.application.port.out.dto.SearchByKeywordParams;
 import com.likelion.backendplus4.yakplus.search.domain.model.Drug;
 import com.likelion.backendplus4.yakplus.search.domain.model.DrugSearchDomain;
-import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugSymptomDocument;
-import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugNameDocument;
-import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity.GovDrugEntity;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.document.DrugKeywordDocument;
+import com.likelion.backendplus4.yakplus.search.infrastructure.adapter.persistence.entity.DrugEntity;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.DetailSearchResponse;
 import com.likelion.backendplus4.yakplus.search.presentation.controller.dto.response.SearchResponse;
+
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
 /**
  * 증상 관련 객체를 다루는 매퍼 클래스입니다.
  *
  * @author 박찬병
  * @since 2025-04-25
- * @modified 2025-04-29
+ * @modified 2025-05-03
  */
 public class DrugMapper {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
+
 	/**
 	 * ES 색인용 Document를 도메인 모델(DrugSymptom)로 변환합니다.
 	 *
@@ -29,33 +37,41 @@ public class DrugMapper {
 	 * @return DrugSymptom 도메인 모델 객체
 	 * @author 박찬병
 	 * @since 2025-04-25
-	 * @modified 2025-04-25
+	 * @modified 2025-05-01
 	 */
-	public static DrugSearchDomain toDomainBySymptomDocument(DrugSymptomDocument symptomDocument) {
+	public static DrugSearchDomain toDomainByDocument(DrugKeywordDocument symptomDocument) {
 		return DrugSearchDomain.builder()
-			.drugId(symptomDocument.getDrugId())
-			.drugName(symptomDocument.getDrugName())
-			.efficacy(symptomDocument.getEfficacy())
-			.company(symptomDocument.getCompany())
-			.imageUrl(symptomDocument.getImageUrl())
-			.build();
+				.drugId(symptomDocument.getDrugId())
+				.drugName(symptomDocument.getDrugName())
+				.efficacy(symptomDocument.getEfficacy())
+				.company(symptomDocument.getCompany())
+				.imageUrl(symptomDocument.getImageUrl())
+				.build();
 	}
 
+
 	/**
-	 * ES 색인용 Document를 도메인 모델(DrugSearchDomain)로 변환합니다.
+	 * Elasticsearch 응답을 Page<DrugSearchDomain> 형태로 변환합니다.
 	 *
-	 * @param nameDocument 변환 대상 ES Document 객체 (약품명 전용)
-	 * @return DrugSearchDomain 도메인 모델 객체
+	 * @param resp    Elasticsearch 응답 객체
+	 * @param request 검색 요청 정보
+	 * @return 변환된 페이지 객체
+	 * @author 박찬병
+	 * @since 2025-04-24
+	 * @modified 2025-05-04
 	 */
-	public static DrugSearchDomain toDomainByNameDocument(DrugNameDocument nameDocument) {
-		return DrugSearchDomain.builder()
-			.drugId(nameDocument.getDrugId())
-			.drugName(nameDocument.getDrugName())
-			.efficacy(nameDocument.getEfficacy())
-			.company(nameDocument.getCompany())
-			.imageUrl(nameDocument.getImageUrl())
-			.build();
+	public static Page<DrugSearchDomain> toPageResponse(
+		co.elastic.clients.elasticsearch.core.SearchResponse<DrugKeywordDocument> resp, SearchByKeywordParams request) {
+		List<DrugSearchDomain> results = resp.hits().hits().stream()
+			.map(Hit::source)
+			.filter(Objects::nonNull)
+			.map(DrugMapper::toDomainByDocument)
+			.toList();
+
+		long totalHits = Objects.requireNonNull(resp.hits().total()).value();
+		return new PageImpl<>(results, PageRequest.of(request.getFrom(), request.getSize()), totalHits);
 	}
+
 
 
 	/**
@@ -115,7 +131,7 @@ public class DrugMapper {
 	 * @author 함예정
 	 * @since 2025-04-30
 	 */
-	public static Drug toDomainFromEntity(GovDrugEntity d) {
+	public static Drug toDomainFromEntity(DrugEntity d) {
 		return Drug.builder()
 			.drugId(d.getId())
 			.drugName(d.getDrugName())

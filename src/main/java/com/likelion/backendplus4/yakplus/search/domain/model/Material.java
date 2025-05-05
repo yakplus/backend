@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.yakplus.drug.domain.model.vo;
+package com.likelion.backendplus4.yakplus.search.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
