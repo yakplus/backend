@@ -100,6 +100,6 @@ public class EmbeddingRouterAdapter implements EmbeddingPort, EmbeddingSwitchPor
     @Override
     public String getAdapterBeanName() {
         log("어댑터 빈 이름 요청 - 현재 선택된 어댑터: " + adapterBeanName);
-        return adapterBeanName;
+        return adapterBeanName.toLowerCase();
     }
 }
