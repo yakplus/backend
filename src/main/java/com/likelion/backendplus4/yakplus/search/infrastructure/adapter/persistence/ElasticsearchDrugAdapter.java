@@ -44,7 +44,7 @@ import static com.likelion.backendplus4.yakplus.common.util.log.LogUtil.log;
  * Elasticsearch를 통해 Drug 도메인 객체의 검색 기능을 제공하는 어댑터 클래스입니다.
  * DrugSearchRepositoryPort를 구현하여 Elasticsearch 원격 호출을 캡슐화합니다.
  *
- * @modified 2025-05-03
+ * @modified 2025-05-06
  * 25.04.27 - searchBySymptoms() 메서드 리팩토링
  * 25.04.29 - 약품명 검색 기능 추가
  * @since 2025-04-22
@@ -78,7 +78,6 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
         log("searchBySymptoms() 메서드 호출, 검색어: " + params.getQuery());
         try {
             String esQuery = buildSearchQuery(
-                    params.getQuery(),
                     params.getVector(),
                     params.getSize(),
                     params.getFrom()
@@ -94,17 +93,16 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 증상 자동완성 추천 결과를 조회합니다.
-     *
+     * <p>
      * Elasticsearch의 Completion Suggest API를 활용하여 symptomSuggester 필드에서
      * 증상 키워드 자동완성 리스트를 반환합니다.
      *
      * @param q 검색어 프리픽스
      * @return 추천된 증상 문자열 리스트
      * @throws SearchException 검색 실패 시 예외 발생
-     *
      * @author 박찬병
-     * @since 2025-04-24
      * @modified 2025-05-04
+     * @since 2025-04-24
      */
     @Override
     public List<String> getSymptomAutoCompleteResponse(String q) {
@@ -113,17 +111,16 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 약품명 자동완성 추천 결과를 조회합니다.
-     *
+     * <p>
      * drugNameSuggester 필드에서 Completion Suggest API를 통해 약품명 프리픽스 기반
      * 추천 문자열 리스트를 반환합니다.
      *
      * @param q 사용자 입력 프리픽스
      * @return 추천된 약품명 리스트
      * @throws SearchException 검색 실패 시 예외 발생
-     *
      * @author 박찬병
-     * @since 2025-04-28
      * @modified 2025-05-04
+     * @since 2025-04-28
      */
     @Override
     public List<String> getDrugNameAutoCompleteResponse(String q) {
@@ -132,17 +129,16 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 성분명 자동완성 추천 결과를 조회합니다.
-     *
+     * <p>
      * ingredientNameSuggester 필드를 기반으로 사용자의 입력값에 대한 자동완성
      * 추천 리스트를 반환합니다.
      *
      * @param q 검색어 프리픽스
      * @return 추천된 성분명 리스트
      * @throws SearchException 검색 실패 시 예외 발생
-     *
      * @author 박찬병
-     * @since 2025-05-01
      * @modified 2025-05-04
+     * @since 2025-05-01
      */
     @Override
     public List<String> getIngredientAutoCompleteResponse(String q) {
@@ -151,15 +147,15 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 검색어에 매칭되는 증상 문서 리스트를 Elasticsearch에서 조회합니다.
-     *
+     * <p>
      * match 쿼리를 사용하여 efficacy_list 필드에서 검색을 수행합니다.
      *
      * @param request 사용자가 입력한 자연어 검색 요청 DTO
      * @return 증상 문서 리스트 페이지 객체
      * @throws SearchException 검색 중 오류 발생 시
      * @author 박찬병
-     * @since 2025-04-24
      * @modified 2025-05-04
+     * @since 2025-04-24
      */
     @Override
     public Page<DrugSearchDomain> searchDocsBySymptom(DrugSearchNatural request) {
@@ -169,15 +165,15 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 검색어에 매칭되는 약품명 문서 리스트를 Elasticsearch에서 조회합니다.
-     *
+     * <p>
      * match 쿼리를 사용하여 drugName 필드에서 검색을 수행합니다.
      *
      * @param request 사용자가 입력한 자연어 검색 요청 DTO
      * @return 약품명 문서 리스트 페이지 객체
      * @throws SearchException 검색 중 오류 발생 시
      * @author 박찬병
-     * @since 2025-04-28
      * @modified 2025-05-04
+     * @since 2025-04-28
      */
     @Override
     public Page<DrugSearchDomain> searchDocsByDrugName(DrugSearchNatural request) {
@@ -187,15 +183,15 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * 검색어에 매칭되는 성분명 문서 리스트를 Elasticsearch에서 조회합니다.
-     *
+     * <p>
      * match 쿼리를 사용하여 ingredientName 필드에서 검색을 수행합니다.
      *
      * @param request 사용자가 입력한 자연어 검색 요청 DTO
      * @return 성분 기반 검색 결과 페이지 객체
      * @throws SearchException 검색 중 오류 발생 시
      * @author 박찬병
-     * @since 2025-05-01
      * @modified 2025-05-04
+     * @since 2025-05-01
      */
     @Override
     public Page<DrugSearchDomain> searchDocsByIngredient(DrugSearchNatural request) {
@@ -204,56 +200,57 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
     }
 
 
-
     /**
      * 검색 파라미터를 바탕으로 Elasticsearch Query DSL을 JSON 문자열로 조합합니다.
      *
-     * @param query  검색어
      * @param vector 검색어 임베딩 벡터
      * @param size   한 페이지에 조회할 문서 수
      * @param from   조회 시작 오프셋
      * @return Elasticsearch에 전달할 쿼리 JSON 문자열
      * @throws IOException JSON 직렬화 과정에서 오류 발생 시
      * @author 정안식
-     * @modified 2025-04-27
+     * @modified 2025-05-06
      * 25.04.27 - 스크립트 필드명을 변경된 Drug 도메인 객체에 맞추어 수정
      * - 텍스트 매칭 필드 searchAll → efficacy 로 변경(현재는 약의 효과로만 검색하고 있음)
+     * 25.05.06 - 벡터 유사도를 기준으로 필터링 및 보너스 계산 로직 적용
+     * - 텍스트 매칭 필드에 대한 부스트 제거 및 벡터 유사도 기반으로만 순위 정렬
+     * - 유사도 기준에 따라 문서의 점수 계산 (cutoff 및 bonus 적용)
      * @since 2025-04-22
      */
-    private String buildSearchQuery(String query, float[] vector, int size, int from) throws IOException {
+    private String buildSearchQuery(float[] vector, int size, int from) throws IOException {
         String vectorJson = objectMapper.writeValueAsString(vector);
-        String escapedQuery = query.replace("\"", "\\\\\"");
-        return """
+
+        String painless =
+                "double v = cosineSimilarity(params.q, 'vector') + 1.0; " +
+                        "if (v < params.cutoff) return 0.0; " +
+                        "double bonus = v >= params.cutoff + 0.15 ? v * params.boostFactor : 0.0; " +
+                        "return v + bonus;";
+
+        return String.format("""
                 {
                   "from": %d,
                   "size": %d,
+                  "sort": [
+                    { "_score": { "order": "desc" } },
+                    { "drugId": { "order": "asc" } }
+                  ],
                   "query": {
-                    "bool": {
-                      "must": {
-                        "script_score": {
-                          "query": { "match_all": {} },
-                          "script": {
-                            "inline": "cosineSimilarity(params.queryVector, 'vector') + 1.0",
-                            "lang": "painless",
-                            "params": { "queryVector": %s }
-                          }
+                    "script_score": {
+                      "query": { "match_all": {} },
+                      "script": {
+                        "source": "%s",
+                        "lang": "painless",
+                        "params": {
+                          "q":          %s,
+                          "cutoff":     1.15,
+                          "boostFactor": 0.5
                         }
-                      },
-                      "should": [
-                        {
-                          "match": {
-                            "efficacy": {
-                              "query": "%s",
-                              "fuzziness": "AUTO",
-                              "boost": 0.2
-                            }
-                          }
-                        }
-                      ]
+                      }
                     }
                   }
                 }
-                """.formatted(from, size, vectorJson, escapedQuery);
+                """, from, size, painless.replace("\"", "\\\\\""), vectorJson
+        );
     }
 
     /**
@@ -301,21 +298,20 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
 
     /**
      * Completion Suggest API를 사용하여 자동완성 추천 결과를 조회합니다.
-     *
+     * <p>
      * 사용자가 입력한 프리픽스(query)를 바탕으로 Elasticsearch Suggest API를 호출하고,
      * 지정된 필드에서 자동완성 후보 리스트를 추출합니다.
      *
-     * @param indexName     검색 대상 인덱스 이름
-     * @param suggesterKey  suggest 응답에서 사용할 key 이름
-     * @param fieldName     자동완성 필드명
-     * @param analyzer      사용할 분석기(analyzer) 이름
-     * @param q             검색어 프리픽스 (사용자 입력값)
+     * @param indexName    검색 대상 인덱스 이름
+     * @param suggesterKey suggest 응답에서 사용할 key 이름
+     * @param fieldName    자동완성 필드명
+     * @param analyzer     사용할 분석기(analyzer) 이름
+     * @param q            검색어 프리픽스 (사용자 입력값)
      * @return 자동완성 추천 문자열 리스트
      * @throws SearchException Elasticsearch 통신 또는 파싱 실패 시 예외 발생
-     *
      * @author 박찬병
-     * @since 2025-05-04
      * @modified 2025-05-04
+     * @since 2025-05-04
      */
     private List<String> getAutoCompleteResponse(String indexName, String suggesterKey, String fieldName, String analyzer, String q) {
         log("getAutoCompleteResponse() 호출 - index: " + indexName + ", field: " + fieldName + ", query: " + q);
@@ -360,8 +356,8 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return 검색 결과 페이지 객체
      * @throws SearchException 검색 중 Elasticsearch 예외 발생 시
      * @author 박찬병
-     * @since 2025-04-24
      * @modified 2025-05-04
+     * @since 2025-04-24
      */
     private Page<DrugSearchDomain> searchWithMatch(SearchByKeywordParams request, String fieldName) {
         log("searchWithMatch() 호출 - field: " + fieldName + ", query: " + request.getQuery());
@@ -394,8 +390,8 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @return 검색 결과 페이지 객체
      * @throws SearchException 검색 중 Elasticsearch 예외 발생 시
      * @author 박찬병
-     * @since 2025-04-24
      * @modified 2025-05-04
+     * @since 2025-04-24
      */
     private Page<DrugSearchDomain> searchWithMatchPrefix(SearchByKeywordParams request, String fieldName) {
         log("searchWithMatchPrefix() 호출 - field: " + fieldName + ", query: " + request.getQuery());
@@ -427,8 +423,8 @@ public class ElasticsearchDrugAdapter implements DrugSearchRepositoryPort {
      * @param request 검색 요청 정보
      * @return 변환된 페이지 객체
      * @author 박찬병
-     * @since 2025-04-24
      * @modified 2025-05-04
+     * @since 2025-04-24
      */
     private Page<DrugSearchDomain> toPageResponse(SearchResponse<DrugKeywordDocument> resp, SearchByKeywordParams request) {
         List<DrugSearchDomain> results = resp.hits().hits().stream()
