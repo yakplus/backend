@@ -14,7 +14,7 @@ import java.net.URI;
 
 @Component
 @RequiredArgsConstructor
-public class KrSBertEmbeddinggAdapter implements EmbeddingPort {
+public class KrSBertEmbeddingAdapter implements EmbeddingPort {
     private final UriCompBuilder apiUriCompBuilder;
     private final RestTemplate restTemplate;
 
