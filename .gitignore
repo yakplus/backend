@@ -19,7 +19,7 @@ build/
 *.iml
 *.iws
 *.ipr
-out/
+/out/
 .idea/**/
 .idea_modules/
 .idea/httpRequests

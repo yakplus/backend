@@ -1,4 +1,7 @@
 spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
   application:
     name: yakplus
   elasticsearch:
@@ -13,9 +16,32 @@ spring:
     hibernate:
       ddl-auto: none
     #      ddl-auto: create
-    show-sql: true
+#    show-sql: true
     properties:
       hibernate:
         format_sql: true
+#logging:
+#  level:
+#    root: DEBUG
+gov:
+  host: apis.data.go.kr
+  serviceKey: ${GOV_SERVICE_KEY}
+  numOfRows: 100
+  path:
+    detail: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnDtlInq05
+    img: /1471000/DrugPrdtPrmsnInfoService06/getDrugPrdtPrmsnInq06
+
+log:
+  rolling:
+    directory: logs
+    file-name: yakplus-batch.log
+    pattern: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+    max-history: 30
+    total-size-cap: 10MB
+embed:
+  kmbert: embed.techlog.dev
+  krsbert: embedb.techlog.dev
+  switcher:
+    default-adapter: openAIEmbeddingAdapter
 server:
   port: 8084
